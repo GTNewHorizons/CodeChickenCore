@@ -192,7 +192,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook
         ConfigTag checkRAM;
         checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
                 .setComment("Configuration options for checking various requirements for a modpack.").useBraces();
-        if(checkRAM.getTag("checkRAM").setComment("If set to true, check RAM available for Minecraft before continuing to load)").getBooleanValue(false))
+        if(checkRAM.getTag("checkRAM").setComment("If set to true, check RAM available for Minecraft before continuing to load").getBooleanValue(false))
             systemCheck(checkRAM);
         TweakTransformer.load();
         scanCodeChickenMods();
