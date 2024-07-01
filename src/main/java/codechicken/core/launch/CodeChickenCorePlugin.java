@@ -56,7 +56,6 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
 
-        DepLoader.load();
         injectDeobfPlugin();
     }
 
