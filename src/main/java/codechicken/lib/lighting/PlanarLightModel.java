@@ -27,7 +27,7 @@ public class PlanarLightModel implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate(CCRenderState state) {
-        state.setColour(ColourRGBA.multiply(state.colour, colours[state.side]));
+        state.setColourInstance(ColourRGBA.multiply(state.colour, colours[state.side]));
     }
 
     @Override

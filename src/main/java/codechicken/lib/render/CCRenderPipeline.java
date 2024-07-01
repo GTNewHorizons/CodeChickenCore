@@ -49,7 +49,7 @@ public class CCRenderPipeline {
 
         public void render() {
             rebuild();
-            renderState.render();
+            renderState.renderInstance();
         }
     }
 

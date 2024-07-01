@@ -128,8 +128,8 @@ public class LightMatrix implements CCRenderState.IVertexOperation {
         float[] a = ao(lc.side);
         float f = (a[0] * lc.fa + a[1] * lc.fb + a[2] * lc.fc + a[3] * lc.fd);
         int[] b = brightness(lc.side);
-        state.setColour(ColourRGBA.multiplyC(state.colour, f));
-        state.setBrightness((int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF);
+        state.setColourInstance(ColourRGBA.multiplyC(state.colour, f));
+        state.setBrightnessInstance((int) (b[0] * lc.fa + b[1] * lc.fb + b[2] * lc.fc + b[3] * lc.fd) & 0xFF00FF);
     }
 
     @Override

@@ -64,15 +64,15 @@ public class Canvas9Seg {
 
     public void draw(CCRenderState state, int x, int y, int w, int h) {
         CCRenderState.changeTexture(tex);
-        state.reset();
-        state.startDrawing();
+        state.resetInstance();
+        state.startDrawingInstance();
 
         int[] sw = new int[] { x, x + seg_w[0], x + w - seg_w[2], x + w };
         int[] sh = new int[] { y, y + seg_h[0], y + h - seg_h[2], y + h };
 
         for (int seg = 0; seg < 9; seg++) drawSeg(sw, sh, seg);
 
-        state.draw();
+        state.drawInstance();
     }
 
     public void draw(int x, int y, int w, int h) {

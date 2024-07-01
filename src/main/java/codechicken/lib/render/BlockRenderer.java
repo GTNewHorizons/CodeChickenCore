@@ -154,7 +154,7 @@ public class BlockRenderer {
 
     // public static void renderFullBlock(int sideMask) {
     public static void renderFullBlock(CCRenderState state, int sideMask) {
-        state.setModel(fullBlock);
+        state.setModelInstance(fullBlock);
         renderFaces(state, sideMask);
     }
 
@@ -171,8 +171,8 @@ public class BlockRenderer {
     public static void renderFaces(CCRenderState state, int sideMask) {
         if (sideMask == 0x3F) return;
         for (int s = 0; s < 6; s++) if ((sideMask & 1 << s) == 0) {
-            state.setVertexRange(s * 4, (s + 1) * 4);
-            state.render();
+            state.setVertexRangeInstance(s * 4, (s + 1) * 4);
+            state.renderInstance();
         }
     }
 
@@ -191,10 +191,10 @@ public class BlockRenderer {
     public static void renderCuboid(CCRenderState state, Cuboid6 bounds, int sideMask) {
         if (sideMask == 0x3F) return;
 
-        state.setModel(face);
+        state.setModelInstance(face);
         for (int s = 0; s < 6; s++) if ((sideMask & 1 << s) == 0) {
             face.loadCuboidFace(bounds, s);
-            state.render();
+            state.renderInstance();
         }
     }
 

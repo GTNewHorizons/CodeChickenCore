@@ -119,11 +119,9 @@ public class RedirectorTransformer implements IClassTransformer {
                                 changed = true;
 
                             }
-                } else if (node.getOpcode() == Opcodes.INVOKESTATIC && node instanceof MethodInsnNode mNode) {
-                    if (redirectedMethods.contains(mNode.name) && mNode.owner.equals(RenderStateClass)) {
-                        mNode.name = mNode.name + "Static";
-                        changed = true;
-                    } else if (redirectedSimpleMethods.contains(mNode.name) && mNode.owner.equals(RenderStateClass)) {
+                } else if (node instanceof MethodInsnNode mNode) {
+                    if (node.getOpcode() == Opcodes.INVOKESTATIC && redirectedSimpleMethods.contains(mNode.name)
+                            && mNode.owner.equals(RenderStateClass)) {
                         mn.instructions.insertBefore(
                                 mNode,
                                 new MethodInsnNode(
@@ -132,8 +130,15 @@ public class RedirectorTransformer implements IClassTransformer {
                                         "instance",
                                         "()Lcodechicken/lib/render/CCRenderState;"));
                         mNode.setOpcode(Opcodes.INVOKEVIRTUAL);
+                        mNode.name = mNode.name + "Instance";
                         changed = true;
-                    }
+                    } else if (node.getOpcode() == Opcodes.INVOKEVIRTUAL && mNode.owner.equals(RenderStateClass)
+                            && (redirectedSimpleMethods.contains(mNode.name)
+                                    || redirectedMethods.contains(mNode.name))) {
+                                        // Handle mods that updated to previously new API
+                                        mNode.name = mNode.name + "Instance";
+                                        changed = true;
+                                    }
                 }
             }
         }

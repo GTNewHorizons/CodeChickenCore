@@ -46,7 +46,7 @@ public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate(CCRenderState state) {
-        state.setBrightness(sample(state.side));
+        state.setBrightnessInstance(sample(state.side));
     }
 
     @Override

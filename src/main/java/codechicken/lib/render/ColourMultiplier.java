@@ -23,7 +23,7 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation {
     @Override
     public boolean load(CCRenderState state) {
         if (colour == -1) {
-            state.setColour(-1);
+            state.setColourInstance(-1);
             return false;
         }
 
@@ -33,7 +33,7 @@ public class ColourMultiplier implements CCRenderState.IVertexOperation {
 
     @Override
     public void operate(CCRenderState state) {
-        state.setColour(ColourRGBA.multiply(state.colour, colour));
+        state.setColourInstance(ColourRGBA.multiply(state.colour, colour));
     }
 
     @Override

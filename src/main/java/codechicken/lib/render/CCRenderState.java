@@ -193,8 +193,8 @@ public class CCRenderState {
 
         @Override
         public void operate(CCRenderState state) {
-            if (normalRef != null) state.setNormal(normalRef[state.vertexIndex]);
-            else state.setNormal(Rotation.axes[state.side]);
+            if (normalRef != null) state.setNormalInstance(normalRef[state.vertexIndex]);
+            else state.setNormalInstance(Rotation.axes[state.side]);
         }
     };
     public static VertexAttribute<int[]> colourAttrib = new VertexAttribute<>() {
@@ -214,8 +214,9 @@ public class CCRenderState {
 
         @Override
         public void operate(CCRenderState state) {
-            if (colourRef != null) state.setColour(ColourRGBA.multiply(state.baseColour, colourRef[state.vertexIndex]));
-            else state.setColour(state.baseColour);
+            if (colourRef != null)
+                state.setColourInstance(ColourRGBA.multiply(state.baseColour, colourRef[state.vertexIndex]));
+            else state.setColourInstance(state.baseColour);
         }
     };
     public static VertexAttribute<int[]> lightingAttrib = new VertexAttribute<>() {
@@ -241,7 +242,7 @@ public class CCRenderState {
 
         @Override
         public void operate(CCRenderState state) {
-            state.setColour(ColourRGBA.multiply(state.colour, colourRef[state.vertexIndex]));
+            state.setColourInstance(ColourRGBA.multiply(state.colour, colourRef[state.vertexIndex]));
         }
     };
     public static VertexAttribute<int[]> sideAttrib = new VertexAttribute<>() {
@@ -326,11 +327,15 @@ public class CCRenderState {
     public boolean hasBrightness;
     public int brightness;
 
-    // attrute storage
+    // attribute storage
     public int side;
     public LC lc = new LC();
 
-    public void reset() {
+    public static void reset() {
+        instance().resetInstance();
+    }
+
+    public void resetInstance() {
         model = null;
         pipeline.reset();
         useNormals = hasNormal = hasBrightness = hasColour = false;
@@ -338,27 +343,27 @@ public class CCRenderState {
         baseColour = alphaOverride = -1;
     }
 
-    public void setPipeline(IVertexOperation... ops) {
+    public void setPipelineInstance(IVertexOperation... ops) {
         pipeline.setPipeline(ops);
     }
 
     @Deprecated
-    public static void setPipelineStatic(IVertexOperation... ops) {
-        instance().setPipeline(ops);
+    public static void setPipeline(IVertexOperation... ops) {
+        instance().setPipelineInstance(ops);
     }
 
-    public void setPipeline(IVertexSource model, int start, int end, IVertexOperation... ops) {
+    public void setPipelineInstance(IVertexSource model, int start, int end, IVertexOperation... ops) {
         pipeline.reset();
-        setModel(model, start, end);
+        setModelInstance(model, start, end);
         pipeline.setPipeline(ops);
     }
 
     @Deprecated
-    public static void setPipelineStatic(IVertexSource model, int start, int end, IVertexOperation... ops) {
-        instance().setPipeline(model, start, end, ops);
+    public static void setPipeline(IVertexSource model, int start, int end, IVertexOperation... ops) {
+        instance().setPipelineInstance(model, start, end, ops);
     }
 
-    public void bindModel(IVertexSource model) {
+    public void bindModelInstance(IVertexSource model) {
         if (this.model != model) {
             this.model = model;
             pipeline.rebuild();
@@ -366,74 +371,74 @@ public class CCRenderState {
     }
 
     @Deprecated
-    public static void bindModelStatic(IVertexSource model) {
-        instance().bindModel(model);
+    public static void bindModel(IVertexSource model) {
+        instance().bindModelInstance(model);
     }
 
-    public void setModel(IVertexSource source) {
-        setModel(source, 0, source.getVertices().length);
-    }
-
-    @Deprecated
-    public static void setModelStatic(IVertexSource source) {
-        instance().setModel(source);
-    }
-
-    public void setModel(IVertexSource source, int start, int end) {
-        bindModel(source);
-        setVertexRange(start, end);
+    public void setModelInstance(IVertexSource source) {
+        setModelInstance(source, 0, source.getVertices().length);
     }
 
     @Deprecated
-    public static void setModelStatic(IVertexSource source, int start, int end) {
-        instance().setModel(source, start, end);
+    public static void setModel(IVertexSource source) {
+        instance().setModelInstance(source);
     }
 
-    public void setVertexRange(int start, int end) {
+    public void setModelInstance(IVertexSource source, int start, int end) {
+        bindModelInstance(source);
+        setVertexRangeInstance(start, end);
+    }
+
+    @Deprecated
+    public static void setModel(IVertexSource source, int start, int end) {
+        instance().setModelInstance(source, start, end);
+    }
+
+    public void setVertexRangeInstance(int start, int end) {
         firstVertexIndex = start;
         lastVertexIndex = end;
     }
 
     @Deprecated
-    public static void setVertexRangeStatic(int start, int end) {
-        instance().setVertexRange(start, end);
+    public static void setVertexRange(int start, int end) {
+        instance().setVertexRangeInstance(start, end);
     }
 
-    public void render(IVertexOperation... ops) {
-        setPipeline(ops);
-        render();
+    public void renderInstance(IVertexOperation... ops) {
+        setPipelineInstance(ops);
+        renderInstance();
     }
 
     @Deprecated
-    public static void renderStatic(IVertexOperation... ops) {
-        instance().render(ops);
+    public static void render(IVertexOperation... ops) {
+        instance().renderInstance(ops);
     }
 
-    public void render() {
+    public void renderInstance() {
         Vertex5[] verts = model.getVertices();
         for (vertexIndex = firstVertexIndex; vertexIndex < lastVertexIndex; vertexIndex++) {
             model.prepareVertex(this);
             vert.set(verts[vertexIndex]);
-            runPipeline();
-            writeVert();
+            runPipelineInstance();
+            writeVertInstance();
         }
     }
 
     @Deprecated
-    public static void renderStatic() {
-        instance().render();
+    public static void render() {
+        instance().renderInstance();
     }
 
-    public void runPipeline() {
+    public void runPipelineInstance() {
         pipeline.operate();
     }
 
     @Deprecated
-    public static void runPipelineStatic() {
-        instance().runPipeline();
+    public static void runPipeline() {
+        instance().runPipelineInstance();
     }
 
-    public void writeVert() {
+    public void writeVertInstance() {
         if (hasNormal) Tessellator.instance.setNormal((float) normal.x, (float) normal.y, (float) normal.z);
         if (hasColour) Tessellator.instance.setColorRGBA(
                 colour >>> 24,
@@ -445,71 +450,83 @@ public class CCRenderState {
     }
 
     @Deprecated
-    public static void writeVertStatic() {
-        instance().writeVert();
+    public static void writeVert() {
+        instance().writeVertInstance();
     }
 
-    public void setNormal(double x, double y, double z) {
+    public void setNormalInstance(double x, double y, double z) {
         hasNormal = true;
         normal.set(x, y, z);
     }
 
     @Deprecated
-    public static void setNormalStatic(double x, double y, double z) {
-        instance().setNormal(x, y, z);
+    public static void setNormal(double x, double y, double z) {
+        instance().setNormalInstance(x, y, z);
     }
 
-    public void setNormal(Vector3 n) {
+    public void setNormalInstance(Vector3 n) {
         hasNormal = true;
         normal.set(n);
     }
 
     @Deprecated
-    public static void setNormalStatic(Vector3 n) {
-        instance().setNormal(n);
+    public static void setNormal(Vector3 n) {
+        instance().setNormalInstance(n);
     }
 
-    public void setColour(int c) {
+    public void setColourInstance(int c) {
         hasColour = true;
         colour = c;
     }
 
     @Deprecated
-    public static void setColourStatic(int c) {
-        instance().setColour(c);
+    public static void setColour(int c) {
+        instance().setColourInstance(c);
     }
 
-    public void setBrightness(int b) {
+    public void setBrightnessInstance(int b) {
         hasBrightness = true;
         brightness = b;
     }
 
     @Deprecated
-    public static void setBrightnessStatic(int b) {
-        instance().setBrightness(b);
+    public static void setBrightness(int b) {
+        instance().setBrightnessInstance(b);
     }
 
-    public void setBrightness(IBlockAccess world, int x, int y, int z) {
-        setBrightness(world.getBlock(x, y, z).getMixedBrightnessForBlock(world, x, y, z));
+    public void setBrightnessInstance(IBlockAccess world, int x, int y, int z) {
+        setBrightnessInstance(world.getBlock(x, y, z).getMixedBrightnessForBlock(world, x, y, z));
     }
 
     @Deprecated
-    public static void setBrightnessStatic(IBlockAccess world, int x, int y, int z) {
-        instance().setBrightness(world, x, y, z);
+    public static void setBrightness(IBlockAccess world, int x, int y, int z) {
+        instance().setBrightnessInstance(world, x, y, z);
     }
 
-    public void pullLightmap() {
-        setBrightness((int) OpenGlHelper.lastBrightnessY << 16 | (int) OpenGlHelper.lastBrightnessX);
+    public static void pullLightMap() {
+        instance().pullLightmapInstance();
     }
 
-    public void pushLightmap() {
+    public void pullLightmapInstance() {
+        setBrightnessInstance((int) OpenGlHelper.lastBrightnessY << 16 | (int) OpenGlHelper.lastBrightnessX);
+    }
+
+    public static void pushLightmap() {
+        instance().pushLightmapInstance();
+    }
+
+    public void pushLightmapInstance() {
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, brightness & 0xFFFF, brightness >>> 16);
     }
 
     /**
      * Compact helper for setting dynamic rendering context. Uses normals and doesn't compute lighting
      */
-    public void setDynamic() {
+    public static void setDynamic() {
+        instance().setDynamicInstance();
+    }
+
+    public void setDynamicInstance() {
         useNormals = true;
         computeLighting = false;
     }
@@ -522,16 +539,16 @@ public class CCRenderState {
         Minecraft.getMinecraft().renderEngine.bindTexture(texture);
     }
 
-    public void startDrawing() {
-        startDrawing(7);
+    public void startDrawingInstance() {
+        startDrawingInstance(7);
     }
 
     @Deprecated
-    public static void startDrawingStatic() {
-        instance().startDrawing();
+    public static void startDrawing() {
+        instance().startDrawingInstance();
     }
 
-    public void startDrawing(int mode) {
+    public void startDrawingInstance(int mode) {
         Tessellator.instance.startDrawing(mode);
         if (hasColour) Tessellator.instance.setColorRGBA(
                 colour >>> 24,
@@ -542,11 +559,15 @@ public class CCRenderState {
     }
 
     @Deprecated
-    public static void startDrawingStatic(int mode) {
-        instance().startDrawing(mode);
+    public static void startDrawing(int mode) {
+        instance().startDrawingInstance(mode);
     }
 
-    public void draw() {
+    public static void draw() {
+        Tessellator.instance.draw();
+    }
+
+    public void drawInstance() {
         Tessellator.instance.draw();
     }
 }

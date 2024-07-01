@@ -259,7 +259,7 @@ public class RenderUtils {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         Fluid fluid = stack.getFluid();
-        state.setColour(fluid.getColor(stack) << 8 | alpha);
+        state.setColourInstance(fluid.getColor(stack) << 8 | alpha);
         TextureUtils.bindAtlas(fluid.getSpriteNumber());
         return TextureUtils.safeIcon(fluid.getIcon(stack));
     }
@@ -300,9 +300,9 @@ public class RenderUtils {
         else bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
 
         IIcon tex = prepareFluidRender(state, stack, alpha);
-        state.startDrawing();
+        state.startDrawingInstance();
         renderFluidCuboid(state, bound, tex, res);
-        state.draw();
+        state.drawInstance();
         postFluidRender();
     }
 
@@ -323,14 +323,14 @@ public class RenderUtils {
         }
 
         IIcon tex = prepareFluidRender(state, stack, alpha);
-        state.startDrawing();
+        state.startDrawingInstance();
         renderFluidQuad(
                 new Vector3(rect.x, rect.y + rect.h, 0),
                 new Vector3(rect.w, 0, 0),
                 new Vector3(0, -rect.h, 0),
                 tex,
                 res);
-        state.draw();
+        state.drawInstance();
         postFluidRender();
     }
 

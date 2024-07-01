@@ -467,8 +467,8 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
      * @param ops   Operations to apply
      */
     public void render(CCRenderState state, int start, int end, CCRenderState.IVertexOperation... ops) {
-        state.setPipeline(this, start, end, ops);
-        state.render();
+        state.setPipelineInstance(this, start, end, ops);
+        state.renderInstance();
     }
 
     public void render(int start, int end, CCRenderState.IVertexOperation... ops) {
