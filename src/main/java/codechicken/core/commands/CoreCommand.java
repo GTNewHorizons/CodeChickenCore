@@ -112,12 +112,12 @@ public abstract class CoreCommand implements ICommand {
     }
 
     @Override
-    public List<?> getCommandAliases() {
+    public List<String> getCommandAliases() {
         return null;
     }
 
     @Override
-    public List<?> addTabCompletionOptions(ICommandSender var1, String[] var2) {
+    public List<String> addTabCompletionOptions(ICommandSender var1, String[] var2) {
         return null;
     }
 
