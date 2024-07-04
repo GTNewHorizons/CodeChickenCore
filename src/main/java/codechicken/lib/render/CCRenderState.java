@@ -101,7 +101,7 @@ public class CCRenderState {
     /**
      * Management class for a vertex attrute such as colour, normal etc This class should handle the loading of the
      * attrute from an array provided by IVertexSource.getAttributes or the computation of this attrute from others
-     * 
+     *
      * @param <T> The array type for this attrute eg. int[], Vector3[]
      */
     public abstract static class VertexAttribute<T> implements IVertexOperation {
@@ -146,7 +146,7 @@ public class CCRenderState {
 
         /**
          * Gets an array of vertex attrutes
-         * 
+         *
          * @param attr The vertex attrute to get
          * @param <T>  The attrute array type
          * @return An array, or null if not computed
@@ -503,7 +503,7 @@ public class CCRenderState {
         instance().setBrightnessInstance(world, x, y, z);
     }
 
-    public static void pullLightMap() {
+    public static void pullLightmap() {
         instance().pullLightmapInstance();
     }
 
