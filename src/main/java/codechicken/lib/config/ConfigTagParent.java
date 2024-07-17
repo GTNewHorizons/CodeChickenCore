@@ -6,8 +6,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.TreeMap;
 
 public abstract class ConfigTagParent {
@@ -21,25 +23,30 @@ public abstract class ConfigTagParent {
         }
 
         public int compare(ConfigTag o1, ConfigTag o2) {
-            if (o1.position != o2.position) return compareInt(o1.position, o2.position);
+            if (o1.position != o2.position) return Integer.compare(o1.position, o2.position);
             if (o1.brace != o2.brace) return o1.brace ? 1 : -1; // braced one goes after
-            switch (sortMode) {
-                case 1:
-                    if (o1.value == o2.value) return 0;
-                    if (o1.value == null) return 1;
-                    if (o2.value == null) return -1;
-                    return o1.value.compareTo(o2.value);
-                default:
-                    return o1.name.compareTo(o2.name);
+
+            if (sortMode == 1) {
+                if (Objects.equals(o1.value, o2.value)) return 0;
+                if (o1.value == null) return 1;
+                if (o2.value == null) return -1;
+                return o1.value.compareTo(o2.value);
+            } else {
+                return o1.name.compareTo(o2.name);
             }
         }
 
-        private int compareInt(int a, int b) {
-            return a == b ? 0 : a < b ? -1 : 1;
-        }
     }
 
-    private TreeMap<String, ConfigTag> childtags = new TreeMap<String, ConfigTag>();
+    /**
+     * The immediate child tags of this tag
+     */
+    private final TreeMap<String, ConfigTag> childtags = new TreeMap<>();
+    /**
+     * A map of all tags in the tree, meaning all tags in this tag and all tags in child tags (recursively). Allows for
+     * quick access to any tag in the tree, without the need to traverse the tree part by part.
+     */
+    private final Map<String, ConfigTag> allTagsInTree = new HashMap<>();
     public String comment;
     /**
      * 0 = name, 1 = value
@@ -88,7 +95,7 @@ public abstract class ConfigTagParent {
     }
 
     public boolean containsTag(String tagname) {
-        return getTag(tagname, false) != null;
+        return allTagsInTree.get(tagname) != null;
     }
 
     public ConfigTag getNewTag(String tagname) {
@@ -96,6 +103,12 @@ public abstract class ConfigTagParent {
     }
 
     public ConfigTag getTag(String tagname, boolean create) {
+        ConfigTag tag = allTagsInTree.get(tagname);
+        if (tag == null && create) return getTagRecursive(tagname, create);
+        return tag;
+    }
+
+    public ConfigTag getTagRecursive(String tagname, boolean create) {
         int dotpos = tagname.indexOf(".");
         String basetagname = dotpos == -1 ? tagname : tagname.substring(0, dotpos);
         ConfigTag basetag = childtags.get(basetagname);
@@ -115,6 +128,8 @@ public abstract class ConfigTagParent {
     }
 
     public boolean removeTag(String tagname) {
+        removeChildFromFlatMap(tagname);
+
         ConfigTag tag = getTag(tagname, false);
         if (tag == null) return false;
 
@@ -131,6 +146,22 @@ public abstract class ConfigTagParent {
 
     public void addChild(ConfigTag tag) {
         childtags.put(tag.name, tag);
+
+        addChildToFlatMap(tag.name, tag);
+    }
+
+    private void addChildToFlatMap(String path, ConfigTag tag) {
+        allTagsInTree.put(path, tag);
+
+        // Stupid cast but these two garbage classes are interlinked anyway
+        if ((this instanceof ConfigTag t) && t.parent != null) t.parent.addChildToFlatMap(t.name + "." + path, tag);
+    }
+
+    private void removeChildFromFlatMap(String path) {
+        allTagsInTree.remove(path);
+
+        // Stupid cast but these two garbage classes are interlinked anyway
+        if ((this instanceof ConfigTag t) && t.parent != null) t.parent.removeChildFromFlatMap(t.name + "." + path);
     }
 
     public <T extends ConfigTag> ArrayList<T> getSortedTagList() {
