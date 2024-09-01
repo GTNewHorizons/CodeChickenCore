@@ -83,7 +83,7 @@ public class ClassConstantPoolParser {
                         if (strLen == bytes.length) {
                             for (int j = index + 3; j < index + 3 + strLen; j++) {
                                 if (basicClass[j] != bytes[j - (index + 3)]) {
-                                    break label;
+                                    continue label;
                                 }
                             }
                             return true;
