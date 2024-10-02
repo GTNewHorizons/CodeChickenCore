@@ -27,20 +27,22 @@ import codechicken.lib.vec.Vector3;
 
 public class RenderUtils {
 
-    static Vector3[] vectors = new Vector3[8];
-    static RenderItem uniformRenderItem = new RenderItem() {
-
-        public boolean shouldBob() {
-            return false;
-        }
-    };
+    static Vector3[] vectors;
+    static RenderItem uniformRenderItem;
     static EntityItem entityItem;
 
     static {
-        for (int i = 0; i < vectors.length; i++) vectors[i] = new Vector3();
+        vectors = new Vector3[8];
+        for (int i = 0; i < vectors.length; i++) {
+            vectors[i] = new Vector3();
+        }
+        uniformRenderItem = new RenderItem() {
 
+            public boolean shouldBob() {
+                return false;
+            }
+        };
         uniformRenderItem.setRenderManager(RenderManager.instance);
-
         entityItem = new EntityItem(null);
         entityItem.hoverStart = 0;
     }
