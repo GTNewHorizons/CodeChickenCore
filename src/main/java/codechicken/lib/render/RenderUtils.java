@@ -13,6 +13,7 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.IItemRenderer;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fluids.Fluid;
@@ -56,7 +57,7 @@ public class RenderUtils {
 
     /**
      * Draws a tessellated quadrilateral bottom to top, left to right
-     * 
+     *
      * @param base The bottom left corner of the quad
      * @param wide The bottom of the quad
      * @param high The left side of the quad
@@ -115,11 +116,10 @@ public class RenderUtils {
         }
     }
 
-    public static void translateToWorldCoords(Entity entity, float frame) {
-        double interpPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * frame;
-        double interpPosY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * frame;
-        double interpPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * frame;
-
+    public static void translateToWorldCoords(Entity entity, float partialTicks) {
+        double interpPosX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks;
+        double interpPosY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks;
+        double interpPosZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks;
         GL11.glTranslated(-interpPosX, -interpPosY, -interpPosZ);
     }
 
@@ -276,28 +276,31 @@ public class RenderUtils {
         GL11.glDisable(GL11.GL_BLEND);
     }
 
-    public static double fluidDensityToAlpha(double density) {
-        return Math.pow(density, 0.4);
+    public static double fluidDensityToAlpha(double d) {
+        return Math.pow(d, 0.4);
     }
 
     /**
      * Renders a fluid within a bounding box. If the fluid is a liquid it will render as a normal tank with height equal
-     * to density/bound.height. If the fluid is a gas, it will render the full box with an alpha equal to density.
+     * to fillRate/bound.height. If the fluid is a gas, it will render the full box with an alpha equal to fillRate.
      * Warning, bound will be mutated if the fluid is a liquid
-     * 
-     * @param stack   The fluid to render.
-     * @param bound   The box within which the fluid is contained.
-     * @param density The volume of fluid / the capacity of the tank. For gases this determines the alpha, for liquids
-     *                this determines the height.
-     * @param res     The resolution to render at.
+     *
+     * @param stack    The fluid to render.
+     * @param bound    The bounding box within which the fluid is contained.
+     * @param fillRate The volume of fluid / the capacity of the tank. This is a double between 0 and 1.
+     * @param res      The resolution to render at.
      */
-    public static void renderFluidCuboid(CCRenderState state, FluidStack stack, Cuboid6 bound, double density,
+    public static void renderFluidCuboid(CCRenderState state, FluidStack stack, Cuboid6 bound, double fillRate,
             double res) {
         if (!shouldRenderFluid(stack)) return;
 
+        fillRate = MathHelper.clamp_double(fillRate, 0d, 1d);
         int alpha = 255;
-        if (stack.getFluid().isGaseous()) alpha = (int) (fluidDensityToAlpha(density) * 255);
-        else bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * density;
+        if (stack.getFluid().isGaseous()) {
+            alpha = (int) (fluidDensityToAlpha(fillRate) * 255);
+        } else {
+            bound.max.y = bound.min.y + (bound.max.y - bound.min.y) * fillRate;
+        }
 
         IIcon tex = prepareFluidRender(state, stack, alpha);
         state.startDrawingInstance();
@@ -306,18 +309,30 @@ public class RenderUtils {
         postFluidRender();
     }
 
-    public static void renderFluidCuboid(FluidStack stack, Cuboid6 bound, double density, double res) {
-        renderFluidCuboid(CCRenderState.instance(), stack, bound, density, res);
+    /**
+     * Renders a fluid within a bounding box. If the fluid is a liquid it will render as a normal tank with height equal
+     * to fillRate/bound.height. If the fluid is a gas, it will render the full box with an alpha equal to fillRate.
+     * Warning, bound will be mutated if the fluid is a liquid
+     *
+     * @param stack    The fluid to render.
+     * @param bound    The bounding box within which the fluid is contained.
+     * @param fillRate The volume of fluid / the capacity of the tank. This is a double between 0 and 1.
+     * @param res      The resolution to render at.
+     */
+    public static void renderFluidCuboid(FluidStack stack, Cuboid6 bound, double fillRate, double res) {
+        renderFluidCuboid(CCRenderState.instance(), stack, bound, fillRate, res);
     }
 
-    public static void renderFluidGauge(CCRenderState state, FluidStack stack, Rectangle4i rect, double density,
+    public static void renderFluidGauge(CCRenderState state, FluidStack stack, Rectangle4i rect, double fillRate,
             double res) {
         if (!shouldRenderFluid(stack)) return;
 
+        fillRate = MathHelper.clamp_double(fillRate, 0d, 1d);
         int alpha = 255;
-        if (stack.getFluid().isGaseous()) alpha = (int) (fluidDensityToAlpha(density) * 255);
-        else {
-            int height = (int) (rect.h * density);
+        if (stack.getFluid().isGaseous()) {
+            alpha = (int) (fluidDensityToAlpha(fillRate) * 255);
+        } else {
+            int height = (int) (rect.h * fillRate);
             rect.y += rect.h - height;
             rect.h = height;
         }
@@ -334,8 +349,8 @@ public class RenderUtils {
         postFluidRender();
     }
 
-    public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double density, double res) {
-        renderFluidGauge(CCRenderState.instance(), stack, rect, density, res);
+    public static void renderFluidGauge(FluidStack stack, Rectangle4i rect, double fillRate, double res) {
+        renderFluidGauge(CCRenderState.instance(), stack, rect, fillRate, res);
     }
 
     /**
@@ -347,7 +362,7 @@ public class RenderUtils {
 
     /**
      * Renders items and blocks in the world at 0,0,0 with transformations that size them appropriately
-     * 
+     *
      * @param spin The spin angle of the item around the y axis in degrees
      */
     public static void renderItemUniform(ItemStack item, double spin) {
