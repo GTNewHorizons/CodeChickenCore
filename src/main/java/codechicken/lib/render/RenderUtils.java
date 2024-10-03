@@ -66,7 +66,7 @@ public class RenderUtils {
      * @param res  Units per icon
      */
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, IIcon icon, double res) {
-        Tessellator t = Tessellator.instance;
+        Tessellator tessellator = Tessellator.instance;
 
         double u1 = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
@@ -91,20 +91,25 @@ public class RenderUtils {
                 Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
                 Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
 
-                t.addVertexWithUV(
+                tessellator.addVertexWithUV(
                         base.x + dx1.x + dy2.x,
                         base.y + dx1.y + dy2.y,
                         base.z + dx1.z + dy2.z,
                         u1,
                         v2 - ry / res * dv);
-                t.addVertexWithUV(base.x + dx1.x + dy1.x, base.y + dx1.y + dy1.y, base.z + dx1.z + dy1.z, u1, v2);
-                t.addVertexWithUV(
+                tessellator.addVertexWithUV(
+                        base.x + dx1.x + dy1.x,
+                        base.y + dx1.y + dy1.y,
+                        base.z + dx1.z + dy1.z,
+                        u1,
+                        v2);
+                tessellator.addVertexWithUV(
                         base.x + dx2.x + dy1.x,
                         base.y + dx2.y + dy1.y,
                         base.z + dx2.z + dy1.z,
                         u1 + rx / res * du,
                         v2);
-                t.addVertexWithUV(
+                tessellator.addVertexWithUV(
                         base.x + dx2.x + dy2.x,
                         base.y + dx2.y + dy2.y,
                         base.z + dx2.z + dy2.z,
@@ -126,123 +131,133 @@ public class RenderUtils {
     }
 
     public static void drawCuboidOutline(Cuboid6 c) {
-        Tessellator var2 = Tessellator.instance;
-        var2.startDrawing(3);
-        var2.addVertex(c.min.x, c.min.y, c.min.z);
-        var2.addVertex(c.max.x, c.min.y, c.min.z);
-        var2.addVertex(c.max.x, c.min.y, c.max.z);
-        var2.addVertex(c.min.x, c.min.y, c.max.z);
-        var2.addVertex(c.min.x, c.min.y, c.min.z);
-        var2.draw();
-        var2.startDrawing(3);
-        var2.addVertex(c.min.x, c.max.y, c.min.z);
-        var2.addVertex(c.max.x, c.max.y, c.min.z);
-        var2.addVertex(c.max.x, c.max.y, c.max.z);
-        var2.addVertex(c.min.x, c.max.y, c.max.z);
-        var2.addVertex(c.min.x, c.max.y, c.min.z);
-        var2.draw();
-        var2.startDrawing(1);
-        var2.addVertex(c.min.x, c.min.y, c.min.z);
-        var2.addVertex(c.min.x, c.max.y, c.min.z);
-        var2.addVertex(c.max.x, c.min.y, c.min.z);
-        var2.addVertex(c.max.x, c.max.y, c.min.z);
-        var2.addVertex(c.max.x, c.min.y, c.max.z);
-        var2.addVertex(c.max.x, c.max.y, c.max.z);
-        var2.addVertex(c.min.x, c.min.y, c.max.z);
-        var2.addVertex(c.min.x, c.max.y, c.max.z);
-        var2.draw();
+        Tessellator tess = Tessellator.instance;
+        tess.startDrawing(3);
+        tess.addVertex(c.min.x, c.min.y, c.min.z);
+        tess.addVertex(c.max.x, c.min.y, c.min.z);
+        tess.addVertex(c.max.x, c.min.y, c.max.z);
+        tess.addVertex(c.min.x, c.min.y, c.max.z);
+        tess.addVertex(c.min.x, c.min.y, c.min.z);
+        tess.draw();
+        tess.startDrawing(3);
+        tess.addVertex(c.min.x, c.max.y, c.min.z);
+        tess.addVertex(c.max.x, c.max.y, c.min.z);
+        tess.addVertex(c.max.x, c.max.y, c.max.z);
+        tess.addVertex(c.min.x, c.max.y, c.max.z);
+        tess.addVertex(c.min.x, c.max.y, c.min.z);
+        tess.draw();
+        tess.startDrawing(1);
+        tess.addVertex(c.min.x, c.min.y, c.min.z);
+        tess.addVertex(c.min.x, c.max.y, c.min.z);
+        tess.addVertex(c.max.x, c.min.y, c.min.z);
+        tess.addVertex(c.max.x, c.max.y, c.min.z);
+        tess.addVertex(c.max.x, c.min.y, c.max.z);
+        tess.addVertex(c.max.x, c.max.y, c.max.z);
+        tess.addVertex(c.min.x, c.min.y, c.max.z);
+        tess.addVertex(c.min.x, c.max.y, c.max.z);
+        tess.draw();
     }
 
     public static void renderFluidCuboid(CCRenderState state, Cuboid6 bound, IIcon tex, double res) {
-        renderFluidQuad( // bottom
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                tex,
-                res);
-        renderFluidQuad( // top
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                tex,
-                res);
-        renderFluidQuad( // -x
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                tex,
-                res);
-        renderFluidQuad( // +x
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                tex,
-                res);
-        renderFluidQuad( // -z
-                new Vector3(bound.max.x, bound.max.y, bound.min.z),
-                new Vector3(bound.max.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.min.y, bound.min.z),
-                new Vector3(bound.min.x, bound.max.y, bound.min.z),
-                tex,
-                res);
-        renderFluidQuad( // +z
-                new Vector3(bound.min.x, bound.max.y, bound.max.z),
-                new Vector3(bound.min.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.min.y, bound.max.z),
-                new Vector3(bound.max.x, bound.max.y, bound.max.z),
-                tex,
-                res);
+        renderFluidCuboid(bound, tex, res);
     }
 
     public static void renderFluidCuboid(Cuboid6 bound, IIcon tex, double res) {
-        renderFluidCuboid(CCRenderState.instance(), bound, tex, res);
+        final double minX = bound.min.x;
+        final double minY = bound.min.y;
+        final double minZ = bound.min.z;
+        final double maxX = bound.max.x;
+        final double maxY = bound.max.y;
+        final double maxZ = bound.max.z;
+        renderFluidQuad( // bottom
+                new Vector3(minX, minY, minZ),
+                new Vector3(maxX, minY, minZ),
+                null,
+                new Vector3(minX, minY, maxZ),
+                tex,
+                res);
+        renderFluidQuad( // top
+                new Vector3(minX, maxY, minZ),
+                new Vector3(minX, maxY, maxZ),
+                null,
+                new Vector3(maxX, maxY, minZ),
+                tex,
+                res);
+        renderFluidQuad( // -x
+                new Vector3(minX, maxY, minZ),
+                new Vector3(minX, minY, minZ),
+                null,
+                new Vector3(minX, maxY, maxZ),
+                tex,
+                res);
+        renderFluidQuad( // +x
+                new Vector3(maxX, maxY, maxZ),
+                new Vector3(maxX, minY, maxZ),
+                null,
+                new Vector3(maxX, maxY, minZ),
+                tex,
+                res);
+        renderFluidQuad( // -z
+                new Vector3(maxX, maxY, minZ),
+                new Vector3(maxX, minY, minZ),
+                null,
+                new Vector3(minX, maxY, minZ),
+                tex,
+                res);
+        renderFluidQuad( // +z
+                new Vector3(minX, maxY, maxZ),
+                new Vector3(minX, minY, maxZ),
+                null,
+                new Vector3(maxX, maxY, maxZ),
+                tex,
+                res);
     }
 
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1,
             double ty2) {
-        double[] points = new double[] { x - 0.009, x + 1.009, y - 0.009, y + 1.009, z - 0.009, z + 1.009 };
-
         Tessellator tessellator = Tessellator.instance;
+        final double minX = x - 0.009;
+        final double maxX = x + 1.009;
+        final double minY = y - 0.009;
+        final double maxY = y + 1.009;
+        final double minZ = z - 0.009;
+        final double maxZ = z + 1.009;
         switch (side) {
             case 0:
-                tessellator.addVertexWithUV(points[0], points[2], points[4], tx1, ty1);
-                tessellator.addVertexWithUV(points[1], points[2], points[4], tx2, ty1);
-                tessellator.addVertexWithUV(points[1], points[2], points[5], tx2, ty2);
-                tessellator.addVertexWithUV(points[0], points[2], points[5], tx1, ty2);
+                tessellator.addVertexWithUV(minX, minY, minZ, tx1, ty1);
+                tessellator.addVertexWithUV(maxX, minY, minZ, tx2, ty1);
+                tessellator.addVertexWithUV(maxX, minY, maxZ, tx2, ty2);
+                tessellator.addVertexWithUV(minX, minY, maxZ, tx1, ty2);
                 break;
             case 1:
-                tessellator.addVertexWithUV(points[1], points[3], points[4], tx2, ty1);
-                tessellator.addVertexWithUV(points[0], points[3], points[4], tx1, ty1);
-                tessellator.addVertexWithUV(points[0], points[3], points[5], tx1, ty2);
-                tessellator.addVertexWithUV(points[1], points[3], points[5], tx2, ty2);
+                tessellator.addVertexWithUV(maxX, maxY, minZ, tx2, ty1);
+                tessellator.addVertexWithUV(minX, maxY, minZ, tx1, ty1);
+                tessellator.addVertexWithUV(minX, maxY, maxZ, tx1, ty2);
+                tessellator.addVertexWithUV(maxX, maxY, maxZ, tx2, ty2);
                 break;
             case 2:
-                tessellator.addVertexWithUV(points[0], points[3], points[4], tx2, ty1);
-                tessellator.addVertexWithUV(points[1], points[3], points[4], tx1, ty1);
-                tessellator.addVertexWithUV(points[1], points[2], points[4], tx1, ty2);
-                tessellator.addVertexWithUV(points[0], points[2], points[4], tx2, ty2);
+                tessellator.addVertexWithUV(minX, maxY, minZ, tx2, ty1);
+                tessellator.addVertexWithUV(maxX, maxY, minZ, tx1, ty1);
+                tessellator.addVertexWithUV(maxX, minY, minZ, tx1, ty2);
+                tessellator.addVertexWithUV(minX, minY, minZ, tx2, ty2);
                 break;
             case 3:
-                tessellator.addVertexWithUV(points[1], points[3], points[5], tx2, ty1);
-                tessellator.addVertexWithUV(points[0], points[3], points[5], tx1, ty1);
-                tessellator.addVertexWithUV(points[0], points[2], points[5], tx1, ty2);
-                tessellator.addVertexWithUV(points[1], points[2], points[5], tx2, ty2);
+                tessellator.addVertexWithUV(maxX, maxY, maxZ, tx2, ty1);
+                tessellator.addVertexWithUV(minX, maxY, maxZ, tx1, ty1);
+                tessellator.addVertexWithUV(minX, minY, maxZ, tx1, ty2);
+                tessellator.addVertexWithUV(maxX, minY, maxZ, tx2, ty2);
                 break;
             case 4:
-                tessellator.addVertexWithUV(points[0], points[3], points[5], tx2, ty1);
-                tessellator.addVertexWithUV(points[0], points[3], points[4], tx1, ty1);
-                tessellator.addVertexWithUV(points[0], points[2], points[4], tx1, ty2);
-                tessellator.addVertexWithUV(points[0], points[2], points[5], tx2, ty2);
+                tessellator.addVertexWithUV(minX, maxY, maxZ, tx2, ty1);
+                tessellator.addVertexWithUV(minX, maxY, minZ, tx1, ty1);
+                tessellator.addVertexWithUV(minX, minY, minZ, tx1, ty2);
+                tessellator.addVertexWithUV(minX, minY, maxZ, tx2, ty2);
                 break;
             case 5:
-                tessellator.addVertexWithUV(points[1], points[3], points[4], tx2, ty1);
-                tessellator.addVertexWithUV(points[1], points[3], points[5], tx1, ty1);
-                tessellator.addVertexWithUV(points[1], points[2], points[5], tx1, ty2);
-                tessellator.addVertexWithUV(points[1], points[2], points[4], tx2, ty2);
+                tessellator.addVertexWithUV(maxX, maxY, minZ, tx2, ty1);
+                tessellator.addVertexWithUV(maxX, maxY, maxZ, tx1, ty1);
+                tessellator.addVertexWithUV(maxX, minY, maxZ, tx1, ty2);
+                tessellator.addVertexWithUV(maxX, minY, minZ, tx2, ty2);
                 break;
         }
     }
@@ -306,7 +321,7 @@ public class RenderUtils {
 
         IIcon tex = prepareFluidRender(state, stack, alpha);
         state.startDrawingInstance();
-        renderFluidCuboid(state, bound, tex, res);
+        renderFluidCuboid(bound, tex, res);
         state.drawInstance();
         postFluidRender();
     }
