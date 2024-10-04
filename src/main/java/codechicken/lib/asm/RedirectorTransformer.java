@@ -183,7 +183,7 @@ public class RedirectorTransformer implements IClassTransformer, Opcodes {
             output.write(data);
             CodeChickenCorePlugin.logger.info("Saved class (byte[]) to " + classFile.toPath());
         } catch (IOException e) {
-            CodeChickenCorePlugin.logger.error("Could not save class (byte[]) " + classname, e);
+            CodeChickenCorePlugin.logger.error("Could not save class (byte[]) " + classname);
         }
         if (bytecodeFile.exists()) {
             // noinspection ResultOfMethodCallIgnored
@@ -194,7 +194,7 @@ public class RedirectorTransformer implements IClassTransformer, Opcodes {
             classReader.accept(new TraceClassVisitor(null, new Textifier(), new PrintWriter(output)), 0);
             CodeChickenCorePlugin.logger.info("Saved class (bytecode) to " + bytecodeFile.toPath());
         } catch (IOException e) {
-            CodeChickenCorePlugin.logger.error("Could not save class (bytecode) " + classname, e);
+            CodeChickenCorePlugin.logger.error("Could not save class (bytecode) " + classname);
         }
     }
 }
