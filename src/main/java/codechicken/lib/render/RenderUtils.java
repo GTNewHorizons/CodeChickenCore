@@ -27,15 +27,10 @@ import codechicken.lib.vec.Vector3;
 
 public class RenderUtils {
 
-    static Vector3[] vectors;
     static RenderItem uniformRenderItem;
     static EntityItem entityItem;
 
     static {
-        vectors = new Vector3[8];
-        for (int i = 0; i < vectors.length; i++) {
-            vectors[i] = new Vector3();
-        }
         uniformRenderItem = new RenderItem() {
 
             public boolean shouldBob() {
@@ -47,14 +42,15 @@ public class RenderUtils {
         entityItem.hoverStart = 0;
     }
 
+    @Deprecated
     public static void renderFluidQuad(Vector3 point1, Vector3 point2, Vector3 point3, Vector3 point4, IIcon icon,
             double res) {
+        // spotless:off
         renderFluidQuad(
-                point2,
-                vectors[0].set(point4).subtract(point1),
-                vectors[1].set(point1).subtract(point2),
-                icon,
-                res);
+            point2.x, point2.y, point2.z,
+            point4.x - point1.x, point4.y - point1.y, point4.z - point1.z,
+            point1.x - point2.x, point1.y - point2.y, point1.z - point2.z,
+            icon, res);
     }
 
     /**
@@ -65,7 +61,32 @@ public class RenderUtils {
      * @param high The left side of the quad
      * @param res  Units per icon
      */
+    @Deprecated
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, IIcon icon, double res) {
+        renderFluidQuad(
+            base.x, base.y, base.z,
+            wide.x, wide.y, wide.z,
+            wide.x, wide.y, wide.z,
+            icon, res);
+    }
+
+    /**
+     * Draws a tessellated quadrilateral bottom to top, left to right
+     * <p>
+     * base : The bottom left corner of the quad
+     * <p>
+     * wide : The bottom of the quad
+     * <p>
+     * high : The left side of the quad
+     * <p>
+     * res :  Units per icon
+     */
+    public static void renderFluidQuad(
+        double baseX, double baseY, double baseZ,
+        double wideX, double wideY, double wideZ,
+        double highX, double highY, double highZ,
+        IIcon icon, double res) {
+
         Tessellator tessellator = Tessellator.instance;
 
         double u = icon.getMinU();
@@ -73,8 +94,8 @@ public class RenderUtils {
         double v = icon.getMinV();
         double dv = icon.getMaxV() - icon.getMinV();
 
-        double wideLen = wide.mag();
-        double highLen = high.mag();
+        double wideLen = Math.sqrt(wideX * wideX + wideY * wideY + wideZ * wideZ);
+        double highLen = Math.sqrt(highX * highX + highY * highY + highZ * highZ);
 
         double x = 0;
         while (x < wideLen) {
@@ -86,33 +107,48 @@ public class RenderUtils {
                 double ry = highLen - y;
                 if (ry > res) ry = res;
 
-                Vector3 dx1 = vectors[2].set(wide).multiply(x / wideLen);
-                Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wideLen);
-                Vector3 dy1 = vectors[4].set(high).multiply(y / highLen);
-                Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / highLen);
+                final double mult1 = x / wideLen;
+                double dx1X = wideX * mult1;
+                double dx1Y = wideY * mult1;
+                double dx1Z = wideZ * mult1;
+
+                final double mult2 = (x + rx) / wideLen;
+                double dx2X = wideX * mult2;
+                double dx2Y = wideY * mult2;
+                double dx2Z = wideZ * mult2;
+
+                final double mult3 = y / highLen;
+                double dy1X = highX * mult3;
+                double dy1Y = highY * mult3;
+                double dy1Z = highZ * mult3;
+
+                final double mult4 = (y + ry) / highLen;
+                double dy2X = highX * mult4;
+                double dy2Y = highY * mult4;
+                double dy2Z = highZ * mult4;
 
                 tessellator.addVertexWithUV(
-                        base.x + dx1.x + dy2.x,
-                        base.y + dx1.y + dy2.y,
-                        base.z + dx1.z + dy2.z,
+                        baseX + dx1X + dy2X,
+                        baseY + dx1Y + dy2Y,
+                        baseZ + dx1Z + dy2Z,
                         u,
                         v + ry / res * dv);
                 tessellator.addVertexWithUV(
-                        base.x + dx1.x + dy1.x,
-                        base.y + dx1.y + dy1.y,
-                        base.z + dx1.z + dy1.z,
+                    baseX + dx1X + dy1X,
+                    baseY + dx1Y + dy1Y,
+                    baseZ + dx1Z + dy1Z,
                         u,
                         v);
                 tessellator.addVertexWithUV(
-                        base.x + dx2.x + dy1.x,
-                        base.y + dx2.y + dy1.y,
-                        base.z + dx2.z + dy1.z,
+                        baseX + dx2X + dy1X,
+                        baseY + dx2Y + dy1Y,
+                        baseZ + dx2Z + dy1Z,
                         u + rx / res * du,
                         v);
                 tessellator.addVertexWithUV(
-                        base.x + dx2.x + dy2.x,
-                        base.y + dx2.y + dy2.y,
-                        base.z + dx2.z + dy2.z,
+                        baseX + dx2X + dy2X,
+                        baseY + dx2Y + dy2Y,
+                        baseZ + dx2Z + dy2Z,
                         u + rx / res * du,
                         v + ry / res * dv);
 
@@ -170,48 +206,37 @@ public class RenderUtils {
         final double maxY = bound.max.y;
         final double maxZ = bound.max.z;
         renderFluidQuad( // bottom
-                new Vector3(minX, minY, minZ),
-                new Vector3(maxX, minY, minZ),
-                null,
-                new Vector3(minX, minY, maxZ),
-                tex,
-                res);
+            minX, minY, minZ,
+            maxX - minX, 0, 0,
+            0, 0, maxZ - minZ,
+            tex, res);
         renderFluidQuad( // top
-                new Vector3(minX, maxY, minZ),
-                new Vector3(minX, maxY, maxZ),
-                null,
-                new Vector3(maxX, maxY, minZ),
-                tex,
-                res);
+            minX, maxY, minZ,
+            0, 0, maxZ - minZ,
+            maxX - minX, 0, 0,
+            tex, res);
         renderFluidQuad( // -x
-                new Vector3(minX, maxY, minZ),
-                new Vector3(minX, minY, minZ),
-                null,
-                new Vector3(minX, maxY, maxZ),
-                tex,
-                res);
+            minX, maxY, minZ,
+            0, minY - maxY, 0,
+            0, 0, maxZ - minZ,
+            tex, res);
         renderFluidQuad( // +x
-                new Vector3(maxX, maxY, maxZ),
-                new Vector3(maxX, minY, maxZ),
-                null,
-                new Vector3(maxX, maxY, minZ),
-                tex,
-                res);
+            maxX, maxY, maxZ,
+            0, minY - maxY, 0,
+            0, 0, minZ - maxZ,
+            tex, res);
         renderFluidQuad( // -z
-                new Vector3(maxX, maxY, minZ),
-                new Vector3(maxX, minY, minZ),
-                null,
-                new Vector3(minX, maxY, minZ),
-                tex,
-                res);
+            maxX, maxY, minZ,
+            0, minY - maxY, 0,
+            minX - maxX, 0, 0,
+            tex, res);
         renderFluidQuad( // +z
-                new Vector3(minX, maxY, maxZ),
-                new Vector3(minX, minY, maxZ),
-                null,
-                new Vector3(maxX, maxY, maxZ),
-                tex,
-                res);
+            minX, maxY, maxZ,
+            0, minY - maxY, 0,
+            maxX - minX, 0, 0,
+            tex, res);
     }
+    // spotless:on
 
     public static void renderBlockOverlaySide(int x, int y, int z, int side, double tx1, double tx2, double ty1,
             double ty2) {
@@ -356,12 +381,7 @@ public class RenderUtils {
 
         IIcon tex = prepareFluidRender(state, stack, alpha);
         state.startDrawingInstance();
-        renderFluidQuad(
-                new Vector3(rect.x, rect.y + rect.h, 0),
-                new Vector3(rect.w, 0, 0),
-                new Vector3(0, -rect.h, 0),
-                tex,
-                res);
+        renderFluidQuad(rect.x, rect.y + rect.h, 0, rect.w, 0, 0, 0, -rect.h, 0, tex, res);
         state.drawInstance();
         postFluidRender();
     }
