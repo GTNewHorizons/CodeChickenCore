@@ -68,53 +68,53 @@ public class RenderUtils {
     public static void renderFluidQuad(Vector3 base, Vector3 wide, Vector3 high, IIcon icon, double res) {
         Tessellator tessellator = Tessellator.instance;
 
-        double u1 = icon.getMinU();
+        double u = icon.getMinU();
         double du = icon.getMaxU() - icon.getMinU();
-        double v2 = icon.getMaxV();
+        double v = icon.getMinV();
         double dv = icon.getMaxV() - icon.getMinV();
 
-        double wlen = wide.mag();
-        double hlen = high.mag();
+        double wideLen = wide.mag();
+        double highLen = high.mag();
 
         double x = 0;
-        while (x < wlen) {
-            double rx = wlen - x;
+        while (x < wideLen) {
+            double rx = wideLen - x;
             if (rx > res) rx = res;
 
             double y = 0;
-            while (y < hlen) {
-                double ry = hlen - y;
+            while (y < highLen) {
+                double ry = highLen - y;
                 if (ry > res) ry = res;
 
-                Vector3 dx1 = vectors[2].set(wide).multiply(x / wlen);
-                Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wlen);
-                Vector3 dy1 = vectors[4].set(high).multiply(y / hlen);
-                Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / hlen);
+                Vector3 dx1 = vectors[2].set(wide).multiply(x / wideLen);
+                Vector3 dx2 = vectors[3].set(wide).multiply((x + rx) / wideLen);
+                Vector3 dy1 = vectors[4].set(high).multiply(y / highLen);
+                Vector3 dy2 = vectors[5].set(high).multiply((y + ry) / highLen);
 
                 tessellator.addVertexWithUV(
                         base.x + dx1.x + dy2.x,
                         base.y + dx1.y + dy2.y,
                         base.z + dx1.z + dy2.z,
-                        u1,
-                        v2 - ry / res * dv);
+                        u,
+                        v + ry / res * dv);
                 tessellator.addVertexWithUV(
                         base.x + dx1.x + dy1.x,
                         base.y + dx1.y + dy1.y,
                         base.z + dx1.z + dy1.z,
-                        u1,
-                        v2);
+                        u,
+                        v);
                 tessellator.addVertexWithUV(
                         base.x + dx2.x + dy1.x,
                         base.y + dx2.y + dy1.y,
                         base.z + dx2.z + dy1.z,
-                        u1 + rx / res * du,
-                        v2);
+                        u + rx / res * du,
+                        v);
                 tessellator.addVertexWithUV(
                         base.x + dx2.x + dy2.x,
                         base.y + dx2.y + dy2.y,
                         base.z + dx2.z + dy2.z,
-                        u1 + rx / res * du,
-                        v2 - ry / res * dv);
+                        u + rx / res * du,
+                        v + ry / res * dv);
 
                 y += ry;
             }
