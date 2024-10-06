@@ -19,7 +19,10 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
             .asDoubleBuffer();
 
     // m<row><column>
-    public double m00, m01, m02, m03, m10, m11, m12, m13, m20, m21, m22, m23, m30, m31, m32, m33;
+    public double m00, m01, m02, m03;
+    public double m10, m11, m12, m13;
+    public double m20, m21, m22, m23;
+    public double m30, m31, m32, m33;
 
     public Matrix4() {
         m00 = m11 = m22 = m33 = 1;
@@ -65,6 +68,15 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         return this;
     }
 
+    public Matrix4 translate(double x, double y, double z) {
+        m03 += m00 * x + m01 * y + m02 * z;
+        m13 += m10 * x + m11 * y + m12 * z;
+        m23 += m20 * x + m21 * y + m22 * z;
+        m33 += m30 * x + m31 * y + m32 * z;
+
+        return this;
+    }
+
     public Matrix4 scale(Vector3 vec) {
         m00 *= vec.x;
         m10 *= vec.x;
@@ -79,6 +91,22 @@ public class Matrix4 extends Transformation implements Copyable<Matrix4> {
         m22 *= vec.z;
         m32 *= vec.z;
 
+        return this;
+    }
+
+    public Matrix4 scale(double scale) {
+        m00 *= scale;
+        m10 *= scale;
+        m20 *= scale;
+        m30 *= scale;
+        m01 *= scale;
+        m11 *= scale;
+        m21 *= scale;
+        m31 *= scale;
+        m02 *= scale;
+        m12 *= scale;
+        m22 *= scale;
+        m32 *= scale;
         return this;
     }
 

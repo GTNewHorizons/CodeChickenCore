@@ -29,10 +29,10 @@ public class Vector3 implements Copyable<Vector3> {
 
     public Vector3() {}
 
-    public Vector3(double d, double d1, double d2) {
-        x = d;
-        y = d1;
-        z = d2;
+    public Vector3(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
     public Vector3(Vector3 vec) {
@@ -398,7 +398,7 @@ public class Vector3 implements Copyable<Vector3> {
 
     /**
      * Equals method with tolerance
-     * 
+     *
      * @return true if this is equal to v within +-1E-5
      */
     public boolean equalsT(Vector3 v) {
