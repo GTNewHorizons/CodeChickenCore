@@ -5,7 +5,6 @@ import static codechicken.lib.math.MathHelper.phi;
 import codechicken.lib.vec.Matrix4;
 import codechicken.lib.vec.Quat;
 import codechicken.lib.vec.Rotation;
-import codechicken.lib.vec.Scale;
 import codechicken.lib.vec.Vector3;
 
 public class CCModelLibrary {
@@ -82,7 +81,12 @@ public class CCModelLibrary {
         i++;
     }
 
+    @Deprecated
     public static Matrix4 getRenderMatrix(Vector3 position, Rotation rotation, double scale) {
-        return new Matrix4().translate(position).apply(new Scale(scale)).apply(rotation);
+        return new Matrix4().translate(position).scale(scale).apply(rotation);
+    }
+
+    public static Matrix4 getRenderMatrix(double posX, double posY, double posZ, Rotation rotation, double scale) {
+        return new Matrix4().translate(posX, posY, posZ).scale(scale).apply(rotation);
     }
 }
