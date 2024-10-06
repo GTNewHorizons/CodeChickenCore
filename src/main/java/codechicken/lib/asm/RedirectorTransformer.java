@@ -23,11 +23,12 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.util.ASMifier;
 import org.objectweb.asm.util.Textifier;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-public class RedirectorTransformer implements IClassTransformer {
+import codechicken.core.launch.CodeChickenCorePlugin;
+
+public class RedirectorTransformer implements IClassTransformer, Opcodes {
 
     private static final boolean DUMP_CLASSES = Boolean.parseBoolean(System.getProperty("ccl.dumpClass", "false"));
     private static final String RenderStateClass = "codechicken/lib/render/CCRenderState";
@@ -90,66 +91,63 @@ public class RedirectorTransformer implements IClassTransformer {
         cr.accept(cn, 0);
         boolean changed = false;
 
+        // spotless:off
         for (MethodNode mn : cn.methods) {
             for (AbstractInsnNode node : mn.instructions.toArray()) {
                 if (node instanceof FieldInsnNode fNode) {
-                    if (node.getOpcode() == Opcodes.GETSTATIC && redirectedFields.contains(fNode.name)
-                            && fNode.owner.equals(RenderStateClass)) {
-                        mn.instructions.insertBefore(
-                                fNode,
-                                new MethodInsnNode(
-                                        Opcodes.INVOKESTATIC,
-                                        fNode.owner,
-                                        "instance",
-                                        "()Lcodechicken/lib/render/CCRenderState;"));
-                        fNode.setOpcode(Opcodes.GETFIELD);
+                    if (node.getOpcode() == GETSTATIC && RenderStateClass.equals(fNode.owner) && redirectedFields.contains(fNode.name)) {
+                        mn.instructions.insertBefore(fNode,
+                            new MethodInsnNode(
+                                INVOKESTATIC,
+                                fNode.owner,
+                                "instance",
+                                "()Lcodechicken/lib/render/CCRenderState;",
+                                false));
+                        fNode.setOpcode(GETFIELD);
                         changed = true;
-                    } else if (node.getOpcode() == Opcodes.PUTSTATIC
-                            && (redirectedFields.contains(fNode.name) && fNode.owner.equals(RenderStateClass))) {
-                                InsnList beforePut = new InsnList();
-                                beforePut.add(
-                                        new MethodInsnNode(
-                                                Opcodes.INVOKESTATIC,
-                                                fNode.owner,
-                                                "instance",
-                                                "()Lcodechicken/lib/render/CCRenderState;"));
-                                beforePut.add(new InsnNode(Opcodes.SWAP));
-                                mn.instructions.insertBefore(fNode, beforePut);
-                                fNode.setOpcode(Opcodes.PUTFIELD);
-                                changed = true;
-
-                            }
+                    } else if (node.getOpcode() == PUTSTATIC && RenderStateClass.equals(fNode.owner) && redirectedFields.contains(fNode.name)) {
+                        InsnList list = new InsnList();
+                        list.add(new MethodInsnNode(
+                            INVOKESTATIC,
+                            fNode.owner,
+                            "instance",
+                            "()Lcodechicken/lib/render/CCRenderState;",
+                            false));
+                        list.add(new InsnNode(SWAP));
+                        mn.instructions.insertBefore(fNode, list);
+                        fNode.setOpcode(PUTFIELD);
+                        changed = true;
+                    }
                 } else if (node instanceof MethodInsnNode mNode) {
-                    if (node.getOpcode() == Opcodes.INVOKESTATIC && redirectedSimpleMethods.contains(mNode.name)
-                            && mNode.owner.equals(RenderStateClass)) {
-                        mn.instructions.insertBefore(
-                                mNode,
-                                new MethodInsnNode(
-                                        Opcodes.INVOKESTATIC,
-                                        mNode.owner,
-                                        "instance",
-                                        "()Lcodechicken/lib/render/CCRenderState;"));
-                        mNode.setOpcode(Opcodes.INVOKEVIRTUAL);
+                    if (node.getOpcode() == INVOKESTATIC && RenderStateClass.equals(mNode.owner) && redirectedSimpleMethods.contains(mNode.name)) {
+                        mn.instructions.insertBefore(mNode,
+                            new MethodInsnNode(
+                                INVOKESTATIC,
+                                mNode.owner,
+                                "instance",
+                                "()Lcodechicken/lib/render/CCRenderState;",
+                                false));
+                        mNode.setOpcode(INVOKEVIRTUAL);
                         mNode.name = mNode.name + "Instance";
                         changed = true;
-                    } else if (node.getOpcode() == Opcodes.INVOKEVIRTUAL && mNode.owner.equals(RenderStateClass)
-                            && (redirectedSimpleMethods.contains(mNode.name)
-                                    || redirectedMethods.contains(mNode.name))) {
-                                        // Handle mods that updated to previously new API
-                                        mNode.name = mNode.name + "Instance";
-                                        changed = true;
-                                    }
+                    } else if (node.getOpcode() == INVOKEVIRTUAL && RenderStateClass.equals(mNode.owner)
+                        && (redirectedSimpleMethods.contains(mNode.name) || redirectedMethods.contains(mNode.name))) {
+                        // Handle mods that updated to previously new API
+                        mNode.name = mNode.name + "Instance";
+                        changed = true;
+                    }
                 }
             }
         }
+        // spotless:on
 
         if (changed) {
             ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
             cn.accept(cw);
             final byte[] bytes = cw.toByteArray();
             if (DUMP_CLASSES) {
-                saveTransformedClass(bytes, transformedName);
-                saveTransformedClass(basicClass, transformedName + "_original");
+                saveTransformedClass(basicClass, transformedName + "_PRE");
+                saveTransformedClass(bytes, transformedName + "_POST");
             }
             return bytes;
         }
@@ -158,13 +156,9 @@ public class RedirectorTransformer implements IClassTransformer {
 
     private File outputDir = null;
 
-    private void saveTransformedClass(final byte[] data, final String transformedName) {
-        if (!DUMP_CLASSES) {
-            return;
-        }
-
+    private void saveTransformedClass(final byte[] data, final String classname) {
         if (outputDir == null) {
-            outputDir = new File(Launch.minecraftHome, "ASM_REDIRECTOR");
+            outputDir = new File(Launch.minecraftHome, "ASM_CCL" + File.separatorChar + "REDIRECTOR");
             try {
                 FileUtils.deleteDirectory(outputDir);
             } catch (IOException ignored) {}
@@ -173,40 +167,34 @@ public class RedirectorTransformer implements IClassTransformer {
                 outputDir.mkdirs();
             }
         }
-
-        final String fileName = transformedName.replace('.', File.separatorChar);
+        final String fileName = classname.replace('.', File.separatorChar);
         final File classFile = new File(outputDir, fileName + ".class");
         final File bytecodeFile = new File(outputDir, fileName + "_BYTE.txt");
-        final File asmifiedFile = new File(outputDir, fileName + "_ASM.txt");
         final File outDir = classFile.getParentFile();
         if (!outDir.exists()) {
+            // noinspection ResultOfMethodCallIgnored
             outDir.mkdirs();
         }
         if (classFile.exists()) {
+            // noinspection ResultOfMethodCallIgnored
             classFile.delete();
         }
         try (final OutputStream output = Files.newOutputStream(classFile.toPath())) {
             output.write(data);
+            CodeChickenCorePlugin.logger.info("Saved class (byte[]) to " + classFile.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            CodeChickenCorePlugin.logger.error("Could not save class (byte[]) " + classname);
         }
         if (bytecodeFile.exists()) {
+            // noinspection ResultOfMethodCallIgnored
             bytecodeFile.delete();
         }
         try (final OutputStream output = Files.newOutputStream(bytecodeFile.toPath())) {
             final ClassReader classReader = new ClassReader(data);
             classReader.accept(new TraceClassVisitor(null, new Textifier(), new PrintWriter(output)), 0);
+            CodeChickenCorePlugin.logger.info("Saved class (bytecode) to " + bytecodeFile.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (asmifiedFile.exists()) {
-            asmifiedFile.delete();
-        }
-        try (final OutputStream output = Files.newOutputStream(asmifiedFile.toPath())) {
-            final ClassReader classReader = new ClassReader(data);
-            classReader.accept(new TraceClassVisitor(null, new ASMifier(), new PrintWriter(output)), 0);
-        } catch (IOException e) {
-            e.printStackTrace();
+            CodeChickenCorePlugin.logger.error("Could not save class (bytecode) " + classname);
         }
     }
 }
