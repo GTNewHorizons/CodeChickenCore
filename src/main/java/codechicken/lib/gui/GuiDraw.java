@@ -165,7 +165,8 @@ public class GuiDraw {
         drawMultilineTip(font, x, y, list, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
     }
 
-    public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd, int borderStart, int borderEnd) {
+    public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd,
+            int borderStart, int borderEnd) {
         if (list.isEmpty()) return;
 
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
@@ -217,7 +218,8 @@ public class GuiDraw {
         drawTooltipBox(x, y, w, h, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
     }
 
-    public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart, int borderEnd) {
+    public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart,
+            int borderEnd) {
         // spotless:off
         // draw background
         drawGradientRect(x + 1, y,     w - 1, 1,     bgStart, bgStart); // top
