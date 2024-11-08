@@ -162,6 +162,10 @@ public class GuiDraw {
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list) {
+        drawMultilineTip(font, x, y, list, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+    }
+
+    public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd, int borderStart, int borderEnd) {
         if (list.isEmpty()) return;
 
         GL11.glDisable(GL12.GL_RESCALE_NORMAL);
@@ -189,7 +193,7 @@ public class GuiDraw {
         y = (int) MathHelper.clip(y, 8, displaySize().height - 8 - h);
 
         gui.incZLevel(300);
-        drawTooltipBox(x - 4, y - 4, w + 7, h + 7);
+        drawTooltipBox(x - 4, y - 4, w + 7, h + 7, bgStart, bgEnd, borderStart, borderEnd);
         for (String s : list) {
             ITooltipLineHandler line = getTipLine(s);
             if (line != null) {
@@ -210,18 +214,22 @@ public class GuiDraw {
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h) {
-        int bg = 0xf0100010;
-        drawGradientRect(x + 1, y, w - 1, 1, bg, bg);
-        drawGradientRect(x + 1, y + h, w - 1, 1, bg, bg);
-        drawGradientRect(x + 1, y + 1, w - 1, h - 1, bg, bg); // center
-        drawGradientRect(x, y + 1, 1, h - 1, bg, bg);
-        drawGradientRect(x + w, y + 1, 1, h - 1, bg, bg);
-        int grad1 = 0x505000ff;
-        int grad2 = 0x5028007F;
-        drawGradientRect(x + 1, y + 2, 1, h - 3, grad1, grad2);
-        drawGradientRect(x + w - 1, y + 2, 1, h - 3, grad1, grad2);
+        drawTooltipBox(x, y, w, h, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+    }
 
-        drawGradientRect(x + 1, y + 1, w - 1, 1, grad1, grad1);
-        drawGradientRect(x + 1, y + h - 1, w - 1, 1, grad2, grad2);
+    public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart, int borderEnd) {
+        // spotless:off
+        // draw background
+        drawGradientRect(x + 1, y,     w - 1, 1,     bgStart, bgStart); // top
+        drawGradientRect(x + 1, y + h, w - 1, 1,     bgEnd,   bgEnd); // bottom
+        drawGradientRect(x + 1, y + 1, w - 1, h - 1, bgStart, bgEnd); // center
+        drawGradientRect(x,     y + 1, 1,     h - 1, bgStart, bgEnd); // left
+        drawGradientRect(x + w, y + 1, 1,     h - 1, bgStart, bgEnd); // right
+        // draw inner border
+        drawGradientRect(x + 1,     y + 2, 1,  h - 3,    borderStart, borderEnd); // left
+        drawGradientRect(x + w - 1, y + 2, 1,  h - 3,    borderStart, borderEnd); // right
+        drawGradientRect(x + 1,     y + 1,     w - 1, 1, borderStart, borderStart); // top
+        drawGradientRect(x + 1,     y + h - 1, w - 1, 1, borderEnd,   borderEnd); // bottom
+        // spotless:on
     }
 }
