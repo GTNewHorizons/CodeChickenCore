@@ -114,18 +114,18 @@ public class ClassDiscoverer {
     }
 
     private void readFromZipFile(File file) throws IOException {
-        ZipFile zipFile = new ZipFile(file);
-        Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
-        while (zipEntries.hasMoreElements()) {
-            ZipEntry zipentry = zipEntries.nextElement();
-            String fullname = zipentry.getName().replace('\\', '/');
-            int pos = fullname.lastIndexOf('/');
-            String name = pos == -1 ? fullname : fullname.substring(pos + 1);
-            if (!zipentry.isDirectory() && matcher.matches(name)) {
-                checkAddClass(fullname);
+        try (ZipFile zipFile = new ZipFile(file)) {
+            Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+            while (zipEntries.hasMoreElements()) {
+                ZipEntry zipentry = zipEntries.nextElement();
+                String fullname = zipentry.getName().replace('\\', '/');
+                int pos = fullname.lastIndexOf('/');
+                String name = pos == -1 ? fullname : fullname.substring(pos + 1);
+                if (!zipentry.isDirectory() && matcher.matches(name)) {
+                    checkAddClass(fullname);
+                }
             }
         }
-        zipFile.close();
     }
 
     private void readFromDirectory(File directory, File basedirectory) {
