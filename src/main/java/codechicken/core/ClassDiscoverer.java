@@ -1,13 +1,13 @@
 package codechicken.core;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
 import net.minecraft.launchwrapper.Launch;
 
@@ -114,21 +114,18 @@ public class ClassDiscoverer {
     }
 
     private void readFromZipFile(File file) throws IOException {
-        FileInputStream fileinputstream = new FileInputStream(file);
-        ZipInputStream zipinputstream = new ZipInputStream(fileinputstream);
-        do {
-            ZipEntry zipentry = zipinputstream.getNextEntry();
-            if (zipentry == null) {
-                break;
-            }
+        ZipFile zipFile = new ZipFile(file);
+        Enumeration<? extends ZipEntry> zipEntries = zipFile.entries();
+        while (zipEntries.hasMoreElements()) {
+            ZipEntry zipentry = zipEntries.nextElement();
             String fullname = zipentry.getName().replace('\\', '/');
             int pos = fullname.lastIndexOf('/');
             String name = pos == -1 ? fullname : fullname.substring(pos + 1);
             if (!zipentry.isDirectory() && matcher.matches(name)) {
                 checkAddClass(fullname);
             }
-        } while (true);
-        fileinputstream.close();
+        }
+        zipFile.close();
     }
 
     private void readFromDirectory(File directory, File basedirectory) {
