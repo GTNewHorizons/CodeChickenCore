@@ -79,17 +79,25 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.player.worldObj))
-                extension.watchChunk(chunk, event.player);
+            WorldExtension[] extensions = worldMap.get(event.player.worldObj);
+
+            if (extensions != null) {
+                Chunk chunk = event.player.worldObj
+                        .getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
+                for (WorldExtension extension : extensions) extension.watchChunk(chunk, event.player);
+            }
         }
 
         @SubscribeEvent
         @SideOnly(Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-            for (WorldExtension extension : worldMap.get(event.player.worldObj))
-                extension.unwatchChunk(chunk, event.player);
+            WorldExtension[] extensions = worldMap.get(event.player.worldObj);
+
+            if (extensions != null) {
+                Chunk chunk = event.player.worldObj
+                        .getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
+                for (WorldExtension extension : extensions) extension.unwatchChunk(chunk, event.player);
+            }
         }
 
         @SubscribeEvent
@@ -110,7 +118,7 @@ public class WorldExtensionManager {
     }
 
     private static boolean initialised;
-    private static ArrayList<WorldExtensionInstantiator> extensionIntialisers = new ArrayList<WorldExtensionInstantiator>();
+    private static ArrayList<WorldExtensionInstantiator> extensionIntialisers = new ArrayList<>();
 
     public static void registerWorldExtension(WorldExtensionInstantiator init) {
         if (!initialised) init();
@@ -125,7 +133,7 @@ public class WorldExtensionManager {
         FMLCommonHandler.instance().bus().register(new WorldExtensionEventHandler());
     }
 
-    private static HashMap<World, WorldExtension[]> worldMap = new HashMap<World, WorldExtension[]>();
+    private static HashMap<World, WorldExtension[]> worldMap = new HashMap<>();
 
     private static void onWorldLoad(World world) {
         WorldExtension[] extensions = new WorldExtension[extensionIntialisers.size()];
