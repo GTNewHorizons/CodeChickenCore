@@ -79,24 +79,24 @@ public class WorldExtensionManager {
 
         @SubscribeEvent
         public void onChunkWatch(Watch event) {
-            final var extensions = worldMap.get(event.player.worldObj);
+            WorldExtension[] extensions = worldMap.get(event.player.worldObj);
 
             if (extensions != null) {
-                Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-                for (WorldExtension extension : extensions)
-                    extension.watchChunk(chunk, event.player);
+                Chunk chunk = event.player.worldObj
+                        .getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
+                for (WorldExtension extension : extensions) extension.watchChunk(chunk, event.player);
             }
         }
 
         @SubscribeEvent
         @SideOnly(Side.CLIENT)
         public void onChunkUnWatch(UnWatch event) {
-            final var extensions = worldMap.get(event.player.worldObj);
+            WorldExtension[] extensions = worldMap.get(event.player.worldObj);
 
             if (extensions != null) {
-                Chunk chunk = event.player.worldObj.getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
-                for (WorldExtension extension : extensions)
-                    extension.unwatchChunk(chunk, event.player);
+                Chunk chunk = event.player.worldObj
+                        .getChunkFromChunkCoords(event.chunk.chunkXPos, event.chunk.chunkZPos);
+                for (WorldExtension extension : extensions) extension.unwatchChunk(chunk, event.player);
             }
         }
 
