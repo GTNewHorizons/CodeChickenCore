@@ -22,7 +22,8 @@ public class CommonUtils {
     }
 
     public static File getSaveLocation(int dim) {
-        return getSaveLocation(DimensionManager.getWorld(dim));
+        File base = DimensionManager.getCurrentSaveRootDirectory();
+        return dim == 0 ? base : getSaveLocation(DimensionManager.getWorld(dim));
     }
 
     public static String getWorldName(World world) {
