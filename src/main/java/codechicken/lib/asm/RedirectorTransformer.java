@@ -59,7 +59,12 @@ public class RedirectorTransformer implements IClassTransformer, Opcodes {
                 "hasBrightness",
                 "brightness",
                 "side",
-                "lc"
+                "lc",
+                "normalAttrib",
+                "colourAttrib",
+                "lightCoordAttrib",
+                "sideAttrib",
+                "lightingAttrib"
 
         );
         Collections.addAll(redirectedSimpleMethods, "reset", "pullLightmap", "pushLightmap", "setDynamic", "draw");
