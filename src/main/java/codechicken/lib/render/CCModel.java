@@ -68,7 +68,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public Vector3[] normals() {
-        return getAttributes(CCRenderState.normalAttrib);
+        return getAttributes(CCRenderState.normalAttrib());
     }
 
     @Override
@@ -102,7 +102,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Each pixel corresponds to one unit of position when generating the model
-     * 
+     *
      * @param i  Vertex index to start generating at
      * @param x1 The minX bound of the box
      * @param y1 The minY bound of the box
@@ -195,7 +195,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Generates a box, uv mapped to be the same as a minecraft block with the same bounds
-     * 
+     *
      * @param i      The vertex index to start generating at
      * @param bounds The bounds of the block, 0 to 1
      * @return The generated model. When rendering an icon will need to be supplied for the UV transformation.
@@ -222,7 +222,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Generates a box, uv mapped to be the same as a minecraft block with the same bounds
-     * 
+     *
      * @param i    The vertex index to start generating at
      * @param x1   minX
      * @param y1   minY
@@ -311,7 +311,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Computes the normals of all faces in the model. Uses the cross product of the vectors along 2 sides of the face
-     * 
+     *
      * @param start  The first vertex to generate normals for
      * @param length The number of vertices to generate normals for. Note this must be a multiple of 3 for triangles or
      *               4 for quads
@@ -321,7 +321,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
         if (length % vp != 0 || start % vp != 0)
             throw new IllegalArgumentException("Cannot generate normals across polygons");
 
-        Vector3[] normals = getOrAllocate(CCRenderState.normalAttrib);
+        Vector3[] normals = getOrAllocate(CCRenderState.normalAttrib());
         for (int k = 0; k < length; k += vp) {
             int i = k + start;
             Vector3 diff1 = verts[i + 1].vec.copy().subtract(verts[i].vec);
@@ -336,14 +336,14 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     /**
      * Computes lighting using the normals add a light model If the model is rotated, the lighting will no longer be
      * valid
-     * 
+     *
      * @return The model
      */
     public CCModel computeLighting(LightModel light) {
         Vector3[] normals = normals();
-        int[] colours = getAttributes(CCRenderState.lightingAttrib);
+        int[] colours = getAttributes(CCRenderState.lightingAttrib());
         if (colours == null) {
-            colours = getOrAllocate(CCRenderState.lightingAttrib);
+            colours = getOrAllocate(CCRenderState.lightingAttrib());
             Arrays.fill(colours, -1);
         }
         for (int k = 0; k < verts.length; k++) colours[k] = light.apply(colours[k], normals[k]);
@@ -351,18 +351,18 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
     }
 
     public CCModel setColour(int c) {
-        int[] colours = getOrAllocate(CCRenderState.colourAttrib);
+        int[] colours = getOrAllocate(CCRenderState.colourAttrib());
         Arrays.fill(colours, c);
         return this;
     }
 
     /**
      * Computes the minecraft lighting coordinates for use with a LightMatrix
-     * 
+     *
      * @return The model
      */
     public CCModel computeLightCoords() {
-        LC[] lcs = getOrAllocate(CCRenderState.lightCoordAttrib);
+        LC[] lcs = getOrAllocate(CCRenderState.lightCoordAttrib());
         Vector3[] normals = normals();
         for (int i = 0; i < verts.length; i++) lcs[i] = new LC().compute(verts[i].vec, normals[i]);
         return this;
@@ -370,7 +370,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Averages all normals at the same position to produce a smooth lighting effect.
-     * 
+     *
      * @return The model
      */
     public CCModel smoothNormals() {
@@ -461,7 +461,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Renders vertices start through start+length-1 of the model
-     * 
+     *
      * @param start The first vertex index to render
      * @param end   The vertex index to render until
      * @param ops   Operations to apply
@@ -520,7 +520,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     * 
+     *
      * @param input       An input stream to a obj file
      * @param vertexMode  The vertex mode to create the model for (GL_TRIANGLES or GL_QUADS)
      * @param coordSystem The cooridnate system transformation to apply
@@ -624,7 +624,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     * 
+     *
      * @param res The resource for the obj file
      * @return A map of group names to models
      */
@@ -634,7 +634,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     * 
+     *
      * @param res         The resource for the obj file
      * @param coordSystem The cooridnate system transformation to apply
      * @return A map of group names to models
@@ -652,7 +652,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Parses vertices, texture coords, normals and polygons from a WaveFront Obj file
-     * 
+     *
      * @param res         The resource for the obj file
      * @param vertexMode  The vertex mode to create the model for (GL_TRIANGLES or GL_QUADS)
      * @param coordSystem The cooridnate system transformation to apply
@@ -678,7 +678,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
         boolean hasNormals = polys.get(0)[2] > 0;
         CCModel model = CCModel.newModel(vertexMode, polys.size());
-        if (hasNormals) model.getOrAllocate(CCRenderState.normalAttrib);
+        if (hasNormals) model.getOrAllocate(CCRenderState.normalAttrib());
 
         for (int i = 0; i < polys.size(); i++) {
             int[] ai = polys.get(i);
@@ -807,7 +807,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Generate models rotated to the other 5 sides of the block
-     * 
+     *
      * @param models An array of 6 models
      * @param side   The side of this model
      * @param point  The rotation point
@@ -822,7 +822,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Generate models rotated to the other 3 horizontal of the block
-     * 
+     *
      * @param models An array of 4 models
      * @param side   The side of this model
      * @param point  The rotation point
@@ -841,7 +841,7 @@ public class CCModel implements CCRenderState.IVertexSource, Copyable<CCModel> {
 
     /**
      * Generates copies of faces with clockwise vertices
-     * 
+     *
      * @return The model
      */
     public static CCModel generateBackface(CCModel src, int srcpos, CCModel dst, int destpos, int length) {

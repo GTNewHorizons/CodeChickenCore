@@ -81,8 +81,8 @@ public class LightModel implements CCRenderState.IVertexOperation {
     public boolean load(CCRenderState state) {
         if (!state.computeLighting) return false;
 
-        state.pipeline.addDependency(CCRenderState.normalAttrib);
-        state.pipeline.addDependency(CCRenderState.colourAttrib);
+        state.pipeline.addDependency(CCRenderState.normalAttrib());
+        state.pipeline.addDependency(CCRenderState.colourAttrib());
         return true;
     }
 

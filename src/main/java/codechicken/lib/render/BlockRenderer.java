@@ -20,12 +20,12 @@ public class BlockRenderer {
 
         @Override
         public <T> T getAttributes(CCRenderState.VertexAttribute<T> attr) {
-            return attr == CCRenderState.lightCoordAttrib && lcComputed ? (T) lightCoords : null;
+            return attr == CCRenderState.lightCoordAttrib() && lcComputed ? (T) lightCoords : null;
         }
 
         @Override
         public boolean hasAttribute(CCRenderState.VertexAttribute<?> attr) {
-            return attr == CCRenderState.sideAttrib || attr == CCRenderState.lightCoordAttrib && lcComputed;
+            return attr == CCRenderState.sideAttrib() || attr == CCRenderState.lightCoordAttrib() && lcComputed;
         }
 
         @Override
@@ -136,12 +136,12 @@ public class BlockRenderer {
 
         @Override
         public <T> T getAttributes(VertexAttribute<T> attr) {
-            return attr == CCRenderState.lightCoordAttrib ? (T) lightCoords : null;
+            return attr == CCRenderState.lightCoordAttrib() ? (T) lightCoords : null;
         }
 
         @Override
         public boolean hasAttribute(VertexAttribute<?> attr) {
-            return attr == CCRenderState.sideAttrib || attr == CCRenderState.lightCoordAttrib;
+            return attr == CCRenderState.sideAttrib() || attr == CCRenderState.lightCoordAttrib();
         }
 
         @Override
@@ -164,7 +164,7 @@ public class BlockRenderer {
 
     /**
      * Renders faces of a block-like model based on a sideMask. Eg for side 2, verts 8-11 will be rendered
-     * 
+     *
      * @param sideMask A mask of faces not to render
      */
     // public static void renderFaces(int sideMask) {
@@ -184,7 +184,7 @@ public class BlockRenderer {
 
     /**
      * Renders faces of a cuboid with texture coordinates mapped to match a standard minecraft block
-     * 
+     *
      * @param bounds   The bounding cuboid to render
      * @param sideMask A mask of faces not to render
      */

@@ -169,7 +169,27 @@ public class CCRenderState {
         }
     }
 
-    public static VertexAttribute<Vector3[]> normalAttrib = new VertexAttribute<>() {
+    public static VertexAttribute<Vector3[]> normalAttrib() {
+        return instances.get().normalAttrib;
+    }
+
+    public static VertexAttribute<int[]> colourAttrib() {
+        return instances.get().colourAttrib;
+    }
+
+    public static VertexAttribute<LC[]> lightCoordAttrib() {
+        return instances.get().lightCoordAttrib;
+    }
+
+    public static VertexAttribute<int[]> sideAttrib() {
+        return instances.get().sideAttrib;
+    }
+
+    public static VertexAttribute<int[]> lightingAttrib() {
+        return instances.get().lightingAttrib;
+    }
+
+    public VertexAttribute<Vector3[]> normalAttrib = new VertexAttribute<>() {
 
         private Vector3[] normalRef;
 
@@ -197,7 +217,7 @@ public class CCRenderState {
             else state.setNormalInstance(Rotation.axes[state.side]);
         }
     };
-    public static VertexAttribute<int[]> colourAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> colourAttrib = new VertexAttribute<>() {
 
         private int[] colourRef;
 
@@ -219,7 +239,7 @@ public class CCRenderState {
             else state.setColourInstance(state.baseColour);
         }
     };
-    public static VertexAttribute<int[]> lightingAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> lightingAttrib = new VertexAttribute<>() {
 
         private int[] colourRef;
 
@@ -245,7 +265,7 @@ public class CCRenderState {
             state.setColourInstance(ColourRGBA.multiply(state.colour, colourRef[state.vertexIndex]));
         }
     };
-    public static VertexAttribute<int[]> sideAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> sideAttrib = new VertexAttribute<>() {
 
         private int[] sideRef;
 
@@ -272,7 +292,7 @@ public class CCRenderState {
     /**
      * Uses the position of the lightmatrix to compute LC if not provided
      */
-    public static VertexAttribute<LC[]> lightCoordAttrib = new VertexAttribute<>() {
+    public VertexAttribute<LC[]> lightCoordAttrib = new VertexAttribute<>() {
 
         private LC[] lcRef;
         private final Vector3 vec = new Vector3(); // for computation

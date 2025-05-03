@@ -40,7 +40,7 @@ public class PlanarLightMatrix extends PlanarLightModel {
 
     @Override
     public boolean load(CCRenderState state) {
-        state.pipeline.addDependency(CCRenderState.sideAttrib);
+        state.pipeline.addDependency(CCRenderState.sideAttrib());
         return true;
     }
 

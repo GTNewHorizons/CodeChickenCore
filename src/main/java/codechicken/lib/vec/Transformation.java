@@ -14,14 +14,14 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
 
     /**
      * Applies this transformation to a normal (doesn't translate)
-     * 
+     *
      * @param normal The normal to transform
      */
     public abstract void applyN(Vector3 normal);
 
     /**
      * Applies this transformation to a matrix as a multiplication on the right hand side.
-     * 
+     *
      * @param mat The matrix to combine this transformation with
      */
     public abstract void apply(Matrix4 mat);
@@ -39,14 +39,14 @@ public abstract class Transformation extends ITransformation<Vector3, Transforma
 
     @Override
     public boolean load(CCRenderState state) {
-        state.pipeline.addRequirement(CCRenderState.normalAttrib.operationID());
+        state.pipeline.addRequirement(CCRenderState.normalAttrib().operationID());
         return !isRedundant();
     }
 
     @Override
     public void operate(CCRenderState state) {
         apply(state.vert.vec);
-        if (CCRenderState.normalAttrib.active) applyN(state.normal);
+        if (CCRenderState.normalAttrib().active) applyN(state.normal);
     }
 
     @Override
