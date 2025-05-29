@@ -4,13 +4,15 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.PrintStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.text.DecimalFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.commons.RemappingClassAdapter;
+import org.objectweb.asm.commons.Remapper;
 import org.objectweb.asm.tree.ClassNode;
 
 import com.google.common.base.Function;
@@ -181,7 +183,40 @@ public class ObfuscationRun implements ILogStreams {
 
     public void remap(ClassNode cnode, ClassVisitor cv) {
         cstMappper.transform(cnode);
-        cnode.accept(new RemappingClassAdapter(cv, obfMapper));
+        cnode.accept(newRemapper(cv, obfMapper));
+    }
+
+    private static ClassVisitor newRemapper(ClassVisitor visitor, Remapper remapper) {
+        try {
+            return theConstructor.newInstance(visitor, remapper);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static final Constructor<? extends ClassVisitor> theConstructor;
+
+    static {
+        Class<? extends ClassVisitor> remapperClass;
+        try {
+            // noinspection unchecked
+            remapperClass = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.ClassRemapper");
+        } catch (ClassNotFoundException e) {
+            try {
+                // noinspection unchecked
+                remapperClass = (Class<? extends ClassVisitor>) Class
+                        .forName("org.objectweb.asm.commons.RemappingClassAdapter");
+            } catch (ClassNotFoundException ex) {
+                RuntimeException err = new RuntimeException(ex);
+                err.addSuppressed(e);
+                throw err;
+            }
+        }
+        try {
+            theConstructor = remapperClass.getConstructor(ClassVisitor.class, Remapper.class);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static List<String> getParents(ClassNode cnode) {
