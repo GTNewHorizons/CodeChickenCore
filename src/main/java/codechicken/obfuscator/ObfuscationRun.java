@@ -199,12 +199,13 @@ public class ObfuscationRun implements ILogStreams {
     static {
         Class<? extends ClassVisitor> remapperClass;
         try {
-            //noinspection unchecked
+            // noinspection unchecked
             remapperClass = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.ClassRemapper");
         } catch (ClassNotFoundException e) {
             try {
-                //noinspection unchecked
-                remapperClass = (Class<? extends ClassVisitor>) Class.forName("org.objectweb.asm.commons.RemappingClassAdapter");
+                // noinspection unchecked
+                remapperClass = (Class<? extends ClassVisitor>) Class
+                        .forName("org.objectweb.asm.commons.RemappingClassAdapter");
             } catch (ClassNotFoundException ex) {
                 RuntimeException err = new RuntimeException(ex);
                 err.addSuppressed(e);
