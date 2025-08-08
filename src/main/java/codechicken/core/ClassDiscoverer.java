@@ -11,6 +11,7 @@ import java.util.zip.ZipFile;
 
 import net.minecraft.launchwrapper.Launch;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
 import com.google.common.collect.ImmutableList;
@@ -22,6 +23,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModClassLoader;
 import cpw.mods.fml.relauncher.CoreModManager;
 
+@SuppressWarnings("unused")
 public class ClassDiscoverer {
 
     public IStringMatcher matcher;
@@ -35,17 +37,12 @@ public class ClassDiscoverer {
         for (int i = 0; i < superclasses.length; i++)
             this.superclasses[i] = superclasses[i].getName().replace('.', '/');
 
-        classes = new ArrayList<Class<?>>();
+        classes = new ArrayList<>();
         modClassLoader = (ModClassLoader) Loader.instance().getModClassLoader();
     }
 
     public ClassDiscoverer(Class<?>... superclasses) {
-        this(new IStringMatcher() {
-
-            public boolean matches(String test) {
-                return true;
-            }
-        }, superclasses);
+        this(test -> true, superclasses);
     }
 
     public ArrayList<Class<?>> findClasses() {
@@ -63,7 +60,7 @@ public class ClassDiscoverer {
             byte[] bytes = Launch.classLoader.getClassBytes(classname);
             if (bytes == null) return;
 
-            ClassNode cnode = ASMHelper.createClassNode(bytes);
+            ClassNode cnode = ASMHelper.createClassNode(bytes, ClassReader.SKIP_CODE);
             for (String superclass : superclasses)
                 if (!cnode.interfaces.contains(superclass) && !cnode.superName.equals(superclass)) return;
 
@@ -86,7 +83,7 @@ public class ClassDiscoverer {
         List<String> knownLibraries = ImmutableList.<String>builder().addAll(modClassLoader.getDefaultLibraries())
                 .addAll(CoreModManager.getLoadedCoremods()).build();
         File[] minecraftSources = modClassLoader.getParentSources();
-        HashSet<String> searchedSources = new HashSet<String>();
+        HashSet<String> searchedSources = new HashSet<>();
         for (File minecraftSource : minecraftSources) {
             if (searchedSources.contains(minecraftSource.getAbsolutePath())) continue;
             searchedSources.add(minecraftSource.getAbsolutePath());
