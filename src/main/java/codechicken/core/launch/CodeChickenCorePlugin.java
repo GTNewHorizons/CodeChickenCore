@@ -191,8 +191,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
     public String[] getASMTransformerClass() {
         versionCheck(mcVersion, "CodeChickenCore");
         return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.core.asm.TweakTransformer",
-                "codechicken.core.asm.DelegatedTransformer", "codechicken.core.asm.DefaultImplementationTransformer",
-                "codechicken.lib.asm.RedirectorTransformer" };
+                "codechicken.core.asm.DefaultImplementationTransformer", "codechicken.lib.asm.RedirectorTransformer" };
     }
 
     @Override
@@ -224,24 +223,37 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
                 .getBooleanValue(false))
             systemCheck(checkRAM);
         TweakTransformer.load();
-        scanCodeChickenMods();
-
+        scanModsForDelegatedTransformers();
+        DelegatedTransformer.registerTransformer();
         return null;
     }
 
-    private void scanCodeChickenMods() {
+    private void scanModsForDelegatedTransformers() {
         File modsDir = new File(minecraftDir, "mods");
-        for (File file : modsDir.listFiles()) scanMod(file);
+        if (modsDir.exists()) {
+            final File[] files = modsDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    scanMod(file);
+                }
+            }
+        }
         File versionModsDir = new File(minecraftDir, "mods/" + currentMcVersion);
-        if (versionModsDir.exists()) for (File file : versionModsDir.listFiles()) scanMod(file);
+        if (versionModsDir.exists()) {
+            final File[] files = versionModsDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    scanMod(file);
+                }
+            }
+        }
     }
 
     private void scanMod(File file) {
         if (!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip")) return;
 
         try {
-            JarFile jar = new JarFile(file);
-            try {
+            try (JarFile jar = new JarFile(file)) {
                 Manifest manifest = jar.getManifest();
                 if (manifest == null) return;
                 Attributes attr = manifest.getMainAttributes();
@@ -249,8 +261,6 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
 
                 String transformer = attr.getValue("CCTransformer");
                 if (transformer != null) DelegatedTransformer.addTransformer(transformer, jar, file);
-            } finally {
-                jar.close();
             }
         } catch (Exception e) {
             logger.error("CodeChickenCore: Failed to read jar file: " + file.getName(), e);

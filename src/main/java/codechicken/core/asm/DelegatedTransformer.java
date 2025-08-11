@@ -21,14 +21,17 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
+
 public class DelegatedTransformer implements IClassTransformer {
 
-    private static ArrayList<IClassTransformer> delegatedTransformers;
-    private static Method m_defineClass;
-    private static Field f_cachedClasses;
+    private static final ArrayList<IClassTransformer> delegatedTransformers;
+    private static final Method m_defineClass;
+    private static final Field f_cachedClasses;
+    private static IClassTransformer[] transformers;
 
-    public DelegatedTransformer() {
-        delegatedTransformers = new ArrayList<IClassTransformer>();
+    static {
+        delegatedTransformers = new ArrayList<>();
         try {
             m_defineClass = ClassLoader.class
                     .getDeclaredMethod("defineClass", String.class, byte[].class, Integer.TYPE, Integer.TYPE);
@@ -40,11 +43,26 @@ public class DelegatedTransformer implements IClassTransformer {
         }
     }
 
+    public static void registerTransformer() {
+        final int size = delegatedTransformers.size();
+        if (size == 0) {
+            logger.debug("No delegated transformer found, skipping registration of main DelegatedTransformer.");
+            return;
+        }
+        logger.debug("Found " + size + " delegated transformers, registering main DelegatedTransformer.");
+        transformers = delegatedTransformers.toArray(new IClassTransformer[0]);
+        String name = DelegatedTransformer.class.getName();
+        FMLRelaunchLog.finer("Registering transformer %s", name);
+        Launch.classLoader.registerTransformer(name);
+    }
+
     @Override
-    public byte[] transform(String name, String tname, byte[] bytes) {
-        if (bytes == null) return null;
-        for (IClassTransformer trans : delegatedTransformers) bytes = trans.transform(name, tname, bytes);
-        return bytes;
+    public byte[] transform(String name, String transformedName, byte[] basicClass) {
+        if (basicClass == null) return null;
+        for (IClassTransformer t : transformers) {
+            basicClass = t.transform(name, transformedName, basicClass);
+        }
+        return basicClass;
     }
 
     public static void addTransformer(String transformer, JarFile jar, File jarFile) {
