@@ -1,7 +1,5 @@
 package codechicken.core.asm;
 
-import static codechicken.core.launch.CodeChickenCorePlugin.logger;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +9,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Stack;
+import java.util.jar.Attributes;
 import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 
 import net.minecraft.launchwrapper.IClassTransformer;
@@ -21,14 +21,18 @@ import net.minecraft.launchwrapper.LaunchClassLoader;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 
+import codechicken.core.launch.CodeChickenCorePlugin;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
+
 public class DelegatedTransformer implements IClassTransformer {
 
-    private static ArrayList<IClassTransformer> delegatedTransformers;
-    private static Method m_defineClass;
-    private static Field f_cachedClasses;
+    private static final ArrayList<IClassTransformer> delegatedTransformers;
+    private static final Method m_defineClass;
+    private static final Field f_cachedClasses;
+    private static IClassTransformer[] transformers;
 
-    public DelegatedTransformer() {
-        delegatedTransformers = new ArrayList<IClassTransformer>();
+    static {
+        delegatedTransformers = new ArrayList<>();
         try {
             m_defineClass = ClassLoader.class
                     .getDeclaredMethod("defineClass", String.class, byte[].class, Integer.TYPE, Integer.TYPE);
@@ -41,14 +45,75 @@ public class DelegatedTransformer implements IClassTransformer {
     }
 
     @Override
-    public byte[] transform(String name, String tname, byte[] bytes) {
-        if (bytes == null) return null;
-        for (IClassTransformer trans : delegatedTransformers) bytes = trans.transform(name, tname, bytes);
-        return bytes;
+    public byte[] transform(String name, String transformedName, byte[] basicClass) {
+        if (basicClass == null) return null;
+        for (IClassTransformer t : transformers) {
+            basicClass = t.transform(name, transformedName, basicClass);
+        }
+        return basicClass;
+    }
+
+    public static void load() {
+        scanModsForDelegatedTransformers();
+        final int size = delegatedTransformers.size();
+        if (size == 0) {
+            CodeChickenCorePlugin.logger
+                    .debug("No delegated transformer found, skipping registration of main DelegatedTransformer.");
+            return;
+        }
+        CodeChickenCorePlugin.logger
+                .debug("Found " + size + " delegated transformers, registering main DelegatedTransformer.");
+        transformers = delegatedTransformers.toArray(new IClassTransformer[0]);
+        String name = DelegatedTransformer.class.getName();
+        FMLRelaunchLog.finer("Registering transformer %s", name);
+        Launch.classLoader.registerTransformer(name);
+    }
+
+    private static void scanModsForDelegatedTransformers() {
+        File modsDir = new File(CodeChickenCorePlugin.minecraftDir, "mods");
+        if (modsDir.exists()) {
+            final File[] files = modsDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    scanMod(file);
+                }
+            }
+        }
+        File versionModsDir = new File(
+                CodeChickenCorePlugin.minecraftDir,
+                "mods/" + CodeChickenCorePlugin.currentMcVersion);
+        if (versionModsDir.exists()) {
+            final File[] files = versionModsDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    scanMod(file);
+                }
+            }
+        }
+    }
+
+    private static void scanMod(File file) {
+        if (!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip")) return;
+
+        try {
+            try (JarFile jar = new JarFile(file)) {
+                Manifest manifest = jar.getManifest();
+                if (manifest == null) return;
+                Attributes attr = manifest.getMainAttributes();
+                if (attr == null) return;
+
+                String transformer = attr.getValue("CCTransformer");
+                if (transformer != null) {
+                    addTransformer(transformer, jar, file);
+                }
+            }
+        } catch (Exception e) {
+            CodeChickenCorePlugin.logger.error("CodeChickenCore: Failed to read jar file: " + file.getName(), e);
+        }
     }
 
     public static void addTransformer(String transformer, JarFile jar, File jarFile) {
-        logger.debug("Adding CCTransformer: " + transformer);
+        CodeChickenCorePlugin.logger.debug("Adding CCTransformer: " + transformer);
         try {
             byte[] bytes;
             bytes = Launch.classLoader.getClassBytes(transformer);
@@ -107,7 +172,7 @@ public class DelegatedTransformer implements IClassTransformer {
                 byte[] depbytes = readFully(jar.getInputStream(entry));
                 defineDependancies(depbytes, jar, jarFile, depStack);
 
-                logger.debug("Defining dependancy: " + dependancy);
+                CodeChickenCorePlugin.logger.debug("Defining dependancy: " + dependancy);
 
                 defineClass(dependancy.replace('/', '.'), depbytes);
             }
@@ -128,7 +193,6 @@ public class DelegatedTransformer implements IClassTransformer {
         while ((r = stream.read()) != -1) {
             bos.write(r);
         }
-
         return bos.toByteArray();
     }
 }

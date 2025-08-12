@@ -5,14 +5,15 @@ import static codechicken.lib.asm.InsnComparator.findOnce;
 import java.util.Map;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.Launch;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import codechicken.core.launch.CodeChickenCorePlugin;
 import codechicken.lib.asm.ASMBlock;
-import codechicken.lib.asm.ASMInit;
 import codechicken.lib.asm.ASMReader;
 import codechicken.lib.asm.ModularASMTransformer;
 import codechicken.lib.asm.ModularASMTransformer.MethodReplacer;
@@ -20,20 +21,29 @@ import codechicken.lib.asm.ModularASMTransformer.MethodTransformer;
 import codechicken.lib.asm.ModularASMTransformer.MethodWriter;
 import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.config.ConfigTag;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
 
 public class TweakTransformer implements IClassTransformer, Opcodes {
 
-    static {
-        ASMInit.init();
-    }
-
-    private static ModularASMTransformer transformer = new ModularASMTransformer();
-    private static Map<String, ASMBlock> blocks = ASMReader.loadResource("/assets/codechickencore/asm/tweaks.asm");
+    private static final ModularASMTransformer transformer = new ModularASMTransformer();
+    private static final Map<String, ASMBlock> blocks = ASMReader
+            .loadResource("/assets/codechickencore/asm/tweaks.asm");
     public static ConfigTag tweaks;
 
     public static void load() {
-        CodeChickenCoreModContainer.loadConfig();
-        tweaks = CodeChickenCoreModContainer.config.getTag("tweaks")
+        loadTransformersFromConfig();
+        if (transformer.isEmpty()) {
+            CodeChickenCorePlugin.logger
+                    .debug("No tweaks parsed from config, skipping registration of TweakTransformer.");
+            return;
+        }
+        String name = TweakTransformer.class.getName();
+        FMLRelaunchLog.finer("Registering transformer %s", name);
+        Launch.classLoader.registerTransformer(name);
+    }
+
+    private static void loadTransformersFromConfig() {
+        tweaks = CodeChickenCorePlugin.config.getTag("tweaks")
                 .setComment("Various tweaks that can be applied to game mechanics.").useBraces();
         tweaks.removeTag("persistantLava");
 
@@ -103,7 +113,7 @@ public class TweakTransformer implements IClassTransformer, Opcodes {
     }
 
     @Override
-    public byte[] transform(String name, String tname, byte[] bytes) {
+    public final byte[] transform(String name, String tname, byte[] bytes) {
         return transformer.transform(name, bytes);
     }
 }

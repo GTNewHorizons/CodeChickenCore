@@ -1,6 +1,5 @@
 package codechicken.core.asm;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import codechicken.core.ClientUtils;
 import codechicken.core.featurehack.LiquidTextures;
 import codechicken.core.internal.CCCEventHandler;
 import codechicken.core.launch.CodeChickenCorePlugin;
-import codechicken.lib.config.ConfigFile;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.LoadController;
@@ -25,14 +23,6 @@ import cpw.mods.fml.common.versioning.VersionParser;
 import cpw.mods.fml.common.versioning.VersionRange;
 
 public class CodeChickenCoreModContainer extends DummyModContainer {
-
-    public static ConfigFile config;
-
-    public static void loadConfig() {
-        if (config == null)
-            config = new ConfigFile(new File(CodeChickenCorePlugin.minecraftDir, "config/CodeChickenCore.cfg"))
-                    .setComment("CodeChickenCore configuration file.");
-    }
 
     public CodeChickenCoreModContainer() {
         super(getModMetadata());
