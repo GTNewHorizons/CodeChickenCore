@@ -43,8 +43,7 @@ public class TweakTransformer implements IClassTransformer, Opcodes {
     }
 
     private static void loadTransformersFromConfig() {
-        CodeChickenCoreModContainer.loadConfig();
-        tweaks = CodeChickenCoreModContainer.config.getTag("tweaks")
+        tweaks = CodeChickenCorePlugin.config.getTag("tweaks")
                 .setComment("Various tweaks that can be applied to game mechanics.").useBraces();
         tweaks.removeTag("persistantLava");
 

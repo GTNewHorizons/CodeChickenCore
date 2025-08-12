@@ -18,11 +18,11 @@ import javax.swing.event.HyperlinkListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import codechicken.core.asm.CodeChickenCoreModContainer;
 import codechicken.core.asm.DelegatedTransformer;
 import codechicken.core.asm.MCPDeobfuscationTransformer;
 import codechicken.core.asm.Tags;
 import codechicken.core.asm.TweakTransformer;
+import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.ConfigTag;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.versioning.DefaultArtifactVersion;
@@ -41,6 +41,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
     @Deprecated
     public static final String version = Tags.VERSION;
 
+    public static ConfigFile config;
     public static File minecraftDir;
     public static String currentMcVersion;
     public static Logger logger = LogManager.getLogger("CodeChickenCore");
@@ -49,6 +50,8 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
         if (minecraftDir != null) return;
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
+        config = new ConfigFile(new File(minecraftDir, "config/CodeChickenCore.cfg"))
+                .setComment("CodeChickenCore configuration file.");
         if (Boolean.getBoolean("ccc.dev.deobfuscate")) {
             injectDeobfPlugin();
         }
@@ -81,8 +84,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     @Override
     public void injectData(Map<String, Object> data) {
-        CodeChickenCoreModContainer.loadConfig();
-        ConfigTag checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
+        ConfigTag checkRAM = CodeChickenCorePlugin.config.getTag("checks")
                 .setComment("Configuration options for checking various requirements for a modpack.").useBraces();
         if (checkRAM.getTag("checkRAM")
                 .setComment("If set to true, check RAM available for Minecraft before continuing to load")
