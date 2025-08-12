@@ -9,9 +9,6 @@ import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
@@ -33,11 +30,9 @@ import cpw.mods.fml.common.versioning.VersionParser;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
-import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
-@TransformerExclusions(value = { "codechicken.core.asm", "codechicken.obfuscator" })
-@MCVersion("1.7.10")
+@IFMLLoadingPlugin.MCVersion("1.7.10")
+@IFMLLoadingPlugin.TransformerExclusions(value = { "codechicken.core.asm", "codechicken.obfuscator" })
 public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     public static final String mcVersion = "[1.7.10]";
@@ -219,46 +214,6 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
             systemCheck(checkRAM);
         }
         TweakTransformer.load();
-        scanModsForDelegatedTransformers();
-        DelegatedTransformer.registerTransformer();
-    }
-
-    private void scanModsForDelegatedTransformers() {
-        File modsDir = new File(minecraftDir, "mods");
-        if (modsDir.exists()) {
-            final File[] files = modsDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    scanMod(file);
-                }
-            }
-        }
-        File versionModsDir = new File(minecraftDir, "mods/" + currentMcVersion);
-        if (versionModsDir.exists()) {
-            final File[] files = versionModsDir.listFiles();
-            if (files != null) {
-                for (File file : files) {
-                    scanMod(file);
-                }
-            }
-        }
-    }
-
-    private void scanMod(File file) {
-        if (!file.getName().endsWith(".jar") && !file.getName().endsWith(".zip")) return;
-
-        try {
-            try (JarFile jar = new JarFile(file)) {
-                Manifest manifest = jar.getManifest();
-                if (manifest == null) return;
-                Attributes attr = manifest.getMainAttributes();
-                if (attr == null) return;
-
-                String transformer = attr.getValue("CCTransformer");
-                if (transformer != null) DelegatedTransformer.addTransformer(transformer, jar, file);
-            }
-        } catch (Exception e) {
-            logger.error("CodeChickenCore: Failed to read jar file: " + file.getName(), e);
-        }
+        DelegatedTransformer.load();
     }
 }
