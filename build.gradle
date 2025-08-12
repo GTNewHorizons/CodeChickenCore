@@ -3,3 +3,7 @@
 plugins {
     id 'com.gtnewhorizons.gtnhconvention'
 }
+
+minecraft {
+    //extraRunJvmArguments.add("-Dccc.dev.runtimePublic=true")
+}

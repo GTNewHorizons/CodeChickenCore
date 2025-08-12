@@ -60,7 +60,11 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     @Override
     public String getAccessTransformerClass() {
-        return "codechicken.core.asm.CodeChickenAccessTransformer";
+        if (Boolean.getBoolean("ccc.dev.runtimePublic")) {
+            return "codechicken.core.asm.CodeChickenAccessTransformer";
+        } else {
+            return null;
+        }
     }
 
     @Override
