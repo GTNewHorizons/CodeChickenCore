@@ -47,11 +47,44 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     public CodeChickenCorePlugin() {
         if (minecraftDir != null) return;
-
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
-
         injectDeobfPlugin();
+    }
+
+    @Override
+    public String[] getASMTransformerClass() {
+        versionCheck(mcVersion, "CodeChickenCore");
+        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.RedirectorTransformer" };
+    }
+
+    @Override
+    public String getAccessTransformerClass() {
+        return "codechicken.core.asm.CodeChickenAccessTransformer";
+    }
+
+    @Override
+    public String getModContainerClass() {
+        return "codechicken.core.asm.CodeChickenCoreModContainer";
+    }
+
+    @Override
+    public String getSetupClass() {
+        return null;
+    }
+
+    @Override
+    public void injectData(Map<String, Object> data) {
+        CodeChickenCoreModContainer.loadConfig();
+        ConfigTag checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
+                .setComment("Configuration options for checking various requirements for a modpack.").useBraces();
+        if (checkRAM.getTag("checkRAM")
+                .setComment("If set to true, check RAM available for Minecraft before continuing to load")
+                .getBooleanValue(false)) {
+            systemCheck(checkRAM);
+        }
+        TweakTransformer.load();
+        DelegatedTransformer.load();
     }
 
     private void injectDeobfPlugin() {
@@ -180,40 +213,5 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
                 JOptionPane.showMessageDialog(null, ep, "lol nope", JOptionPane.ERROR_MESSAGE);
             FMLCommonHandler.instance().exitJava(-98, true);
         }
-    }
-
-    @Override
-    public String[] getASMTransformerClass() {
-        versionCheck(mcVersion, "CodeChickenCore");
-        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.RedirectorTransformer" };
-    }
-
-    @Override
-    public String getAccessTransformerClass() {
-        return "codechicken.core.asm.CodeChickenAccessTransformer";
-    }
-
-    @Override
-    public String getModContainerClass() {
-        return "codechicken.core.asm.CodeChickenCoreModContainer";
-    }
-
-    @Override
-    public String getSetupClass() {
-        return null;
-    }
-
-    @Override
-    public void injectData(Map<String, Object> data) {
-        CodeChickenCoreModContainer.loadConfig();
-        ConfigTag checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
-                .setComment("Configuration options for checking various requirements for a modpack.").useBraces();
-        if (checkRAM.getTag("checkRAM")
-                .setComment("If set to true, check RAM available for Minecraft before continuing to load")
-                .getBooleanValue(false)) {
-            systemCheck(checkRAM);
-        }
-        TweakTransformer.load();
-        DelegatedTransformer.load();
     }
 }
