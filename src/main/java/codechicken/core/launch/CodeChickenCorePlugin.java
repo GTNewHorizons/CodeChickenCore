@@ -32,14 +32,13 @@ import cpw.mods.fml.common.versioning.DefaultArtifactVersion;
 import cpw.mods.fml.common.versioning.VersionParser;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.FMLInjectionData;
-import cpw.mods.fml.relauncher.IFMLCallHook;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.MCVersion;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin.TransformerExclusions;
 
 @TransformerExclusions(value = { "codechicken.core.asm", "codechicken.obfuscator" })
 @MCVersion("1.7.10")
-public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
+public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     public static final String mcVersion = "[1.7.10]";
 
@@ -51,7 +50,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
     public static Logger logger = LogManager.getLogger("CodeChickenCore");
 
     public CodeChickenCorePlugin() {
-        if (minecraftDir != null) return; // get called twice, once for IFMLCallHook
+        if (minecraftDir != null) return;
 
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
@@ -62,7 +61,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
     private void injectDeobfPlugin() {
         try {
             Class<?> wrapperClass = Class.forName("cpw.mods.fml.relauncher.CoreModManager$FMLPluginWrapper");
-            Constructor wrapperConstructor = wrapperClass
+            Constructor<?> wrapperConstructor = wrapperClass
                     .getConstructor(String.class, IFMLLoadingPlugin.class, File.class, Integer.TYPE, String[].class);
             Field f_loadPlugins = CoreModManager.class.getDeclaredField("loadPlugins");
             wrapperConstructor.setAccessible(true);
@@ -76,7 +75,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
                             0,
                             new String[0]));
         } catch (Exception e) {
-            logger.error("Failed to inject MCPDeobfuscation Transformer", e);
+            logger.error("Failed to inject FMLPluginWrapper for MCPDeobfuscation Transformer", e);
         }
     }
 
@@ -206,26 +205,22 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin, IFMLCallHook {
 
     @Override
     public String getSetupClass() {
-        return getClass().getName();
+        return null;
     }
 
     @Override
-    public void injectData(Map<String, Object> data) {}
-
-    @Override
-    public Void call() {
+    public void injectData(Map<String, Object> data) {
         CodeChickenCoreModContainer.loadConfig();
-        ConfigTag checkRAM;
-        checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
+        ConfigTag checkRAM = CodeChickenCoreModContainer.config.getTag("checks")
                 .setComment("Configuration options for checking various requirements for a modpack.").useBraces();
         if (checkRAM.getTag("checkRAM")
                 .setComment("If set to true, check RAM available for Minecraft before continuing to load")
-                .getBooleanValue(false))
+                .getBooleanValue(false)) {
             systemCheck(checkRAM);
+        }
         TweakTransformer.load();
         scanModsForDelegatedTransformers();
         DelegatedTransformer.registerTransformer();
-        return null;
     }
 
     private void scanModsForDelegatedTransformers() {
