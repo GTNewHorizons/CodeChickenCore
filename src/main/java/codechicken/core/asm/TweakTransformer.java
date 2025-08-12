@@ -12,7 +12,6 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
 import codechicken.lib.asm.ASMBlock;
-import codechicken.lib.asm.ASMInit;
 import codechicken.lib.asm.ASMReader;
 import codechicken.lib.asm.ModularASMTransformer;
 import codechicken.lib.asm.ModularASMTransformer.MethodReplacer;
@@ -23,12 +22,9 @@ import codechicken.lib.config.ConfigTag;
 
 public class TweakTransformer implements IClassTransformer, Opcodes {
 
-    static {
-        ASMInit.init();
-    }
-
-    private static ModularASMTransformer transformer = new ModularASMTransformer();
-    private static Map<String, ASMBlock> blocks = ASMReader.loadResource("/assets/codechickencore/asm/tweaks.asm");
+    private static final ModularASMTransformer transformer = new ModularASMTransformer();
+    private static final Map<String, ASMBlock> blocks = ASMReader
+            .loadResource("/assets/codechickencore/asm/tweaks.asm");
     public static ConfigTag tweaks;
 
     public static void load() {

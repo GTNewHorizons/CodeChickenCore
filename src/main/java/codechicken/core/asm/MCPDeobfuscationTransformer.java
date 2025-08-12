@@ -24,7 +24,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import codechicken.lib.asm.ASMHelper;
-import codechicken.lib.asm.ASMInit;
 import codechicken.lib.asm.CC_ClassWriter;
 import codechicken.lib.asm.ObfMapping;
 import codechicken.obfuscator.IHeirachyEvaluator;
@@ -34,10 +33,6 @@ import cpw.mods.fml.common.asm.transformers.AccessTransformer;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 public class MCPDeobfuscationTransformer implements IClassTransformer, Opcodes, IHeirachyEvaluator {
-
-    static {
-        ASMInit.init();
-    }
 
     public static class LoadPlugin implements IFMLLoadingPlugin {
 

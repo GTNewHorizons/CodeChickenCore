@@ -32,7 +32,8 @@ import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions(value = { "codechicken.core.asm", "codechicken.obfuscator" })
+@IFMLLoadingPlugin.TransformerExclusions({ "codechicken.core.asm", "codechicken.obfuscator", "codechicken.lib.asm",
+        "codechicken.lib.config" })
 public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     public static final String mcVersion = "[1.7.10]";
