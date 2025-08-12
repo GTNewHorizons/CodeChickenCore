@@ -185,8 +185,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         versionCheck(mcVersion, "CodeChickenCore");
-        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.core.asm.TweakTransformer",
-                "codechicken.lib.asm.RedirectorTransformer" };
+        return new String[] { "codechicken.lib.asm.ClassHeirachyManager", "codechicken.lib.asm.RedirectorTransformer" };
     }
 
     @Override

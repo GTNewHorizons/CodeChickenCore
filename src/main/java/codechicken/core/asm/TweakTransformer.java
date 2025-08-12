@@ -5,12 +5,14 @@ import static codechicken.lib.asm.InsnComparator.findOnce;
 import java.util.Map;
 
 import net.minecraft.launchwrapper.IClassTransformer;
+import net.minecraft.launchwrapper.Launch;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
 
+import codechicken.core.launch.CodeChickenCorePlugin;
 import codechicken.lib.asm.ASMBlock;
 import codechicken.lib.asm.ASMReader;
 import codechicken.lib.asm.ModularASMTransformer;
@@ -19,6 +21,7 @@ import codechicken.lib.asm.ModularASMTransformer.MethodTransformer;
 import codechicken.lib.asm.ModularASMTransformer.MethodWriter;
 import codechicken.lib.asm.ObfMapping;
 import codechicken.lib.config.ConfigTag;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
 
 public class TweakTransformer implements IClassTransformer, Opcodes {
 
@@ -28,6 +31,18 @@ public class TweakTransformer implements IClassTransformer, Opcodes {
     public static ConfigTag tweaks;
 
     public static void load() {
+        loadTransformersFromConfig();
+        if (transformer.isEmpty()) {
+            CodeChickenCorePlugin.logger
+                    .debug("No tweaks parsed from config, skipping registration of TweakTransformer.");
+            return;
+        }
+        String name = TweakTransformer.class.getName();
+        FMLRelaunchLog.finer("Registering transformer %s", name);
+        Launch.classLoader.registerTransformer(name);
+    }
+
+    private static void loadTransformersFromConfig() {
         CodeChickenCoreModContainer.loadConfig();
         tweaks = CodeChickenCoreModContainer.config.getTag("tweaks")
                 .setComment("Various tweaks that can be applied to game mechanics.").useBraces();
@@ -99,7 +114,7 @@ public class TweakTransformer implements IClassTransformer, Opcodes {
     }
 
     @Override
-    public byte[] transform(String name, String tname, byte[] bytes) {
+    public final byte[] transform(String name, String tname, byte[] bytes) {
         return transformer.transform(name, bytes);
     }
 }
