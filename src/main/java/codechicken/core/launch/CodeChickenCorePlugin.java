@@ -49,7 +49,9 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
         if (minecraftDir != null) return;
         minecraftDir = (File) FMLInjectionData.data()[6];
         currentMcVersion = (String) FMLInjectionData.data()[4];
-        injectDeobfPlugin();
+        if (Boolean.getBoolean("ccc.dev.deobfuscate")) {
+            injectDeobfPlugin();
+        }
     }
 
     @Override

@@ -38,7 +38,7 @@ public class MCPDeobfuscationTransformer implements IClassTransformer, Opcodes, 
 
         @Override
         public String[] getASMTransformerClass() {
-            return new String[0];
+            return null;
         }
 
         @Override
@@ -113,26 +113,20 @@ public class MCPDeobfuscationTransformer implements IClassTransformer, Opcodes, 
     }
 
     public static void load() {
-        CodeChickenCoreModContainer.loadConfig();
+        run = new ObfuscationRun(
+                false,
+                ObfMapping.MCPRemapper.getConfFiles(),
+                ObfuscationRun.fillDefaults(new HashMap<String, String>()));
+        run.obf.setHeirachyEvaluator(instance);
+        run.setQuiet().parseMappings();
+        Collections.addAll(excludedPackages, run.config.get("excludedPackages").split(";"));
 
-        if (CodeChickenCoreModContainer.config.getTag("dev.deobfuscate")
-                .setComment("set to true to completely deobfuscate mcp names")
-                .getBooleanValue(!ObfMapping.obfuscated)) {
-            run = new ObfuscationRun(
-                    false,
-                    ObfMapping.MCPRemapper.getConfFiles(),
-                    ObfuscationRun.fillDefaults(new HashMap<String, String>()));
-            run.obf.setHeirachyEvaluator(instance);
-            run.setQuiet().parseMappings();
-            Collections.addAll(excludedPackages, run.config.get("excludedPackages").split(";"));
-
-            if (ObfMapping.obfuscated) {
-                ObfMapping.loadMCPRemapper();
-                run.setSeargeConstants();
-                getTransformers().add(instance);
-            } else {
-                getTransformers().add(0, instance); // insert transformer as first.
-            }
+        if (ObfMapping.obfuscated) {
+            ObfMapping.loadMCPRemapper();
+            run.setSeargeConstants();
+            getTransformers().add(instance);
+        } else {
+            getTransformers().add(0, instance); // insert transformer as first.
         }
     }
 
