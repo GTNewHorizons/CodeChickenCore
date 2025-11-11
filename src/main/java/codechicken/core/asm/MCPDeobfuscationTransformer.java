@@ -24,7 +24,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import codechicken.lib.asm.ASMHelper;
-import codechicken.lib.asm.ASMInit;
 import codechicken.lib.asm.CC_ClassWriter;
 import codechicken.lib.asm.ObfMapping;
 import codechicken.obfuscator.IHeirachyEvaluator;
@@ -35,15 +34,11 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 public class MCPDeobfuscationTransformer implements IClassTransformer, Opcodes, IHeirachyEvaluator {
 
-    static {
-        ASMInit.init();
-    }
-
     public static class LoadPlugin implements IFMLLoadingPlugin {
 
         @Override
         public String[] getASMTransformerClass() {
-            return new String[0];
+            return null;
         }
 
         @Override
@@ -118,26 +113,20 @@ public class MCPDeobfuscationTransformer implements IClassTransformer, Opcodes, 
     }
 
     public static void load() {
-        CodeChickenCoreModContainer.loadConfig();
+        run = new ObfuscationRun(
+                false,
+                ObfMapping.MCPRemapper.getConfFiles(),
+                ObfuscationRun.fillDefaults(new HashMap<String, String>()));
+        run.obf.setHeirachyEvaluator(instance);
+        run.setQuiet().parseMappings();
+        Collections.addAll(excludedPackages, run.config.get("excludedPackages").split(";"));
 
-        if (CodeChickenCoreModContainer.config.getTag("dev.deobfuscate")
-                .setComment("set to true to completely deobfuscate mcp names")
-                .getBooleanValue(!ObfMapping.obfuscated)) {
-            run = new ObfuscationRun(
-                    false,
-                    ObfMapping.MCPRemapper.getConfFiles(),
-                    ObfuscationRun.fillDefaults(new HashMap<String, String>()));
-            run.obf.setHeirachyEvaluator(instance);
-            run.setQuiet().parseMappings();
-            Collections.addAll(excludedPackages, run.config.get("excludedPackages").split(";"));
-
-            if (ObfMapping.obfuscated) {
-                ObfMapping.loadMCPRemapper();
-                run.setSeargeConstants();
-                getTransformers().add(instance);
-            } else {
-                getTransformers().add(0, instance); // insert transformer as first.
-            }
+        if (ObfMapping.obfuscated) {
+            ObfMapping.loadMCPRemapper();
+            run.setSeargeConstants();
+            getTransformers().add(instance);
+        } else {
+            getTransformers().add(0, instance); // insert transformer as first.
         }
     }
 

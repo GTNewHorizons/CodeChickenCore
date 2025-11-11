@@ -275,17 +275,22 @@ public class ModularASMTransformer {
         }
     }
 
-    public HashMap<String, ClassNodeTransformerList> transformers = new HashMap<String, ClassNodeTransformerList>();
+    public HashMap<String, ClassNodeTransformerList> transformers = new HashMap<>();
 
     public void add(ClassNodeTransformer t) {
         ClassNodeTransformerList list = transformers.get(t.className());
-        if (list == null) transformers.put(t.className(), list = new ClassNodeTransformerList());
+        if (list == null) {
+            transformers.put(t.className(), list = new ClassNodeTransformerList());
+        }
         list.add(t);
+    }
+
+    public boolean isEmpty() {
+        return transformers.isEmpty();
     }
 
     public byte[] transform(String name, byte[] bytes) {
         if (bytes == null) return null;
-
         ClassNodeTransformerList list = transformers.get(name);
         return list == null ? bytes : list.transform(bytes);
     }
