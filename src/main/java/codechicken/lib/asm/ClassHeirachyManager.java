@@ -18,10 +18,6 @@ import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
  */
 public class ClassHeirachyManager implements IClassTransformer {
 
-    static {
-        ASMInit.init();
-    }
-
     public static class SuperCache {
 
         String superclass;
