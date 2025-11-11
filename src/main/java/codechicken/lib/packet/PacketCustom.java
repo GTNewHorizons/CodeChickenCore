@@ -351,9 +351,9 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
 
     public PacketCustom writeItemStack(ItemStack stack, boolean large) {
         if (stack == null) {
-            writeInt(-1);
+            writeShort(-1);
         } else {
-            writeInt(Item.getIdFromItem(stack.getItem()));
+            writeShort(Item.getIdFromItem(stack.getItem()));
             if (large) writeInt(stack.stackSize);
             else writeByte(stack.stackSize);
             writeShort(stack.getItemDamage());
@@ -448,7 +448,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
 
     public ItemStack readItemStack(boolean large) {
         ItemStack item = null;
-        int itemID = readInt();
+        short itemID = readShort();
 
         if (itemID >= 0) {
             int stackSize = large ? readInt() : readByte();
