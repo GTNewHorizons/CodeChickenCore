@@ -6,7 +6,6 @@ import java.util.HashSet;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
-import net.minecraft.launchwrapper.LaunchClassLoader;
 
 import org.objectweb.asm.tree.ClassNode;
 
@@ -18,32 +17,7 @@ import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
  */
 public class ClassHeirachyManager implements IClassTransformer {
 
-    public static class SuperCache {
-
-        String superclass;
-        public HashSet<String> parents = new HashSet<String>();
-        private boolean flattened;
-
-        public void add(String parent) {
-            parents.add(parent);
-        }
-
-        public void flatten() {
-            if (flattened) return;
-
-            for (String s : new ArrayList<String>(parents)) {
-                SuperCache c = declareClass(s);
-                if (c != null) {
-                    c.flatten();
-                    parents.addAll(c.parents);
-                }
-            }
-            flattened = true;
-        }
-    }
-
-    public static HashMap<String, SuperCache> superclasses = new HashMap<String, SuperCache>();
-    private static LaunchClassLoader cl = Launch.classLoader;
+    public static final HashMap<String, SuperCache> superclasses = new HashMap<>();
 
     public static String toKey(String name) {
         if (ObfMapping.obfuscated)
@@ -83,7 +57,7 @@ public class ClassHeirachyManager implements IClassTransformer {
         if (cache != null) return cache;
 
         try {
-            byte[] bytes = cl.getClassBytes(unKey(name));
+            byte[] bytes = Launch.classLoader.getClassBytes(unKey(name));
             if (bytes != null) cache = declareASM(bytes);
         } catch (Exception e) {}
 
@@ -146,5 +120,28 @@ public class ClassHeirachyManager implements IClassTransformer {
         String s = cache.superclass;
         if (!runtime) s = FMLDeobfuscatingRemapper.INSTANCE.unmap(s);
         return s;
+    }
+
+    public static class SuperCache {
+
+        String superclass;
+        public HashSet<String> parents = new HashSet<>();
+        private boolean flattened;
+
+        public void add(String parent) {
+            parents.add(parent);
+        }
+
+        public void flatten() {
+            if (flattened) return;
+            for (String s : new ArrayList<>(parents)) {
+                SuperCache c = declareClass(s);
+                if (c != null) {
+                    c.flatten();
+                    parents.addAll(c.parents);
+                }
+            }
+            flattened = true;
+        }
     }
 }
