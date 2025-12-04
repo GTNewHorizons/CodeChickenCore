@@ -7,6 +7,7 @@ import java.util.HashSet;
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
@@ -85,13 +86,15 @@ public class ClassHeirachyManager implements IClassTransformer {
     }
 
     private static SuperCache declareASM(byte[] bytes) {
-        ClassNode node = ASMHelper.createClassNode(bytes);
+        ClassNode node = ASMHelper.createClassNode(bytes,ClassReader.SKIP_CODE);
         String name = toKey(node.name);
 
         SuperCache cache = getOrCreateCache(name);
         cache.superclass = toKey(node.superName.replace('/', '.'));
         cache.add(cache.superclass);
-        for (String iclass : node.interfaces) cache.add(toKey(iclass.replace('/', '.')));
+        for (String iclass : node.interfaces) {
+            cache.add(toKey(iclass.replace('/', '.')));
+        }
 
         return cache;
     }
@@ -100,7 +103,9 @@ public class ClassHeirachyManager implements IClassTransformer {
     public byte[] transform(String name, String tname, byte[] bytes) {
         if (bytes == null) return null;
 
-        if (!superclasses.containsKey(tname)) declareASM(bytes);
+        if (!superclasses.containsKey(tname)) {
+            declareASM(bytes);
+        }
 
         return bytes;
     }
