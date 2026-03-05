@@ -128,7 +128,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                 superclass = toKey(superName);
             }
 
-            if (interfaces.length == 0) {
+            if (interfaces == null || interfaces.length == 0) {
                 this.interfaces = null;
             } else {
                 this.interfaces = new String[interfaces.length];
