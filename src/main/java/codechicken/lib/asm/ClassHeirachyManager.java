@@ -7,7 +7,6 @@ import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
 
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.tree.ClassNode;
 
 import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 
@@ -33,8 +32,8 @@ public class ClassHeirachyManager implements IClassTransformer {
     }
 
     private static ClassInfo declareASM(String name, byte[] bytes) {
-        final ClassNode node = ASMHelper.createClassNode(bytes, ClassReader.SKIP_CODE);
-        final ClassInfo classInfo = new ClassInfo(node);
+        final ClassReader classReader = new ClassReader(bytes);
+        final ClassInfo classInfo = new ClassInfo(classReader);
         superclasses.put(name, classInfo);
         return classInfo;
     }
@@ -118,19 +117,23 @@ public class ClassHeirachyManager implements IClassTransformer {
             this.interfaces = null;
         }
 
-        public ClassInfo(ClassNode node) {
-            if ("java/lang/Object".equals(node.superName)) {
+        public ClassInfo(ClassReader classReader) {
+            final String superName = classReader.getSuperName();
+            final String[] interfaces = classReader.getInterfaces();
+
+            if (superName == null || "java/lang/Object".equals(superName)) {
                 superclass = "java.lang.Object";
                 parent = OBJECT;
             } else {
-                superclass = toKey(node.superName);
+                superclass = toKey(superName);
             }
-            if (node.interfaces.isEmpty()) {
-                interfaces = null;
+
+            if (interfaces.length == 0) {
+                this.interfaces = null;
             } else {
-                interfaces = new String[node.interfaces.size()];
-                for (int i = 0; i < node.interfaces.size(); i++) {
-                    interfaces[i] = toKey(node.interfaces.get(i));
+                this.interfaces = new String[interfaces.length];
+                for (int i = 0; i < interfaces.length; i++) {
+                    this.interfaces[i] = toKey(interfaces[i]);
                 }
             }
         }
