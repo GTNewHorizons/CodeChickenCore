@@ -15,11 +15,63 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class Colour implements Copyable<Colour> {
 
-    public static final class Localized {
+    public static final class LocalizedColours {
 
         private static final String KEY_PREFIX = "codechickencore.color.";
 
-        private Localized() {}
+        public static int BUTTON_TEXT_DISABLED;
+        public static int BUTTON_TEXT_HOVER;
+        public static int BUTTON_TEXT;
+        public static int TEXT_FIELD_BORDER;
+        public static int TEXT_FIELD_BACKGROUND;
+        public static int TEXT_FIELD_TEXT;
+        public static int TEXT_FIELD_TEXT_DISABLED;
+        public static int SCROLL_PANE_BACKGROUND;
+        public static int SCROLL_PANE_OVERLAY_TOP;
+        public static int SCROLL_PANE_OVERLAY_BOTTOM;
+        public static int SCROLL_PANE_OVERLAY_LEFT;
+        public static int SCROLL_PANE_OVERLAY_RIGHT;
+        public static int SCROLLBAR_CORNERS;
+        public static int SCROLLBAR_TOP_LEFT;
+        public static int SCROLLBAR_BOTTOM_RIGHT;
+        public static int SCROLLBAR_FILL;
+        public static int SCROLLBAR_GUIDE;
+        public static int TOOLTIP_BG_START;
+        public static int TOOLTIP_BG_END;
+        public static int TOOLTIP_BORDER_START;
+        public static int TOOLTIP_BORDER_END;
+        public static int TOOLTIP_TEXT;
+        public static int ITEM_QUANTITY_TEXT;
+        public static int MOD_DESCRIPTION_TEXT;
+
+        private LocalizedColours() {}
+
+        public static void reloadLocalizedColours() {
+            BUTTON_TEXT_DISABLED = getLocalizedColor("buttonTextDisabled", 0xFFA0A0A0);
+            BUTTON_TEXT_HOVER = getLocalizedColor("buttonTextHover", 0xFFFFFFA0);
+            BUTTON_TEXT = getLocalizedColor("buttonText", 0xFFE0E0E0);
+            TEXT_FIELD_BORDER = getLocalizedColor("textFieldBorder", 0xFFA0A0A0);
+            TEXT_FIELD_BACKGROUND = getLocalizedColor("textFieldBackground", 0xFF000000);
+            TEXT_FIELD_TEXT = getLocalizedColor("textFieldText", 0xE0E0E0);
+            TEXT_FIELD_TEXT_DISABLED = getLocalizedColor("textFieldTextDisabled", 0x707070);
+            SCROLL_PANE_BACKGROUND = getLocalizedColor("background", 0xFF000000);
+            SCROLL_PANE_OVERLAY_TOP = getLocalizedColor("overlayTop", 0xFFA0A0A0);
+            SCROLL_PANE_OVERLAY_BOTTOM = getLocalizedColor("overlayBottom", 0xFFA0A0A0);
+            SCROLL_PANE_OVERLAY_LEFT = getLocalizedColor("overlayLeft", 0xFFA0A0A0);
+            SCROLL_PANE_OVERLAY_RIGHT = getLocalizedColor("overlayRight", 0xFFA0A0A0);
+            SCROLLBAR_CORNERS = getLocalizedColor("scrollbarCorners", 0xFF8B8B8B);
+            SCROLLBAR_TOP_LEFT = getLocalizedColor("scrollbarTopLeft", 0xFFF0F0F0);
+            SCROLLBAR_BOTTOM_RIGHT = getLocalizedColor("scrollbarBottomRight", 0xFF555555);
+            SCROLLBAR_FILL = getLocalizedColor("scrollbarFill", 0xFFC6C6C6);
+            SCROLLBAR_GUIDE = getLocalizedColor("scrollbarGuide", 0xFF808080);
+            TOOLTIP_BG_START = getLocalizedColor("tooltipBgStart", 0xF0100010);
+            TOOLTIP_BG_END = getLocalizedColor("tooltipBgEnd", 0xF0100010);
+            TOOLTIP_BORDER_START = getLocalizedColor("tooltipBorderStart", 0x505000FF);
+            TOOLTIP_BORDER_END = getLocalizedColor("tooltipBorderEnd", 0x5028007F);
+            TOOLTIP_TEXT = getLocalizedColor("tooltipText", 0xFFFFFFFF);
+            ITEM_QUANTITY_TEXT = getLocalizedColor("itemQuantityText", 0xFFFFFF);
+            MOD_DESCRIPTION_TEXT = getLocalizedColor("modDescriptionText", 0xDDDDDD);
+        }
 
         /**
          * Resolve a optional localized ARGB color from lang files. Expected value format: AARRGGBB (for example

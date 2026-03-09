@@ -3,7 +3,7 @@ package codechicken.core.gui;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 
-import codechicken.lib.colour.Colour.Localized;
+import codechicken.lib.colour.Colour.LocalizedColours;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.vec.Rectangle4i;
 
@@ -185,53 +185,29 @@ public abstract class GuiScrollPane extends GuiWidget {
     }
 
     public void drawBackground(float frame) {
-        drawRect(x, y, x + width, y + height, Localized.getLocalizedColor("background", 0xFF000000));
+        drawRect(x, y, x + width, y + height, LocalizedColours.SCROLL_PANE_BACKGROUND);
     }
 
     public abstract void drawContent(int mx, int my, float frame);
 
     public void drawOverlay(float frame) {
         // outlines
-        drawRect(x, y - 1, x + width, y, Localized.getLocalizedColor("overlayTop", 0xFFA0A0A0));
-        drawRect(x, y + height, x + width, y + height + 1, Localized.getLocalizedColor("overlayBottom", 0xFFA0A0A0));
-        drawRect(x - 1, y - 1, x, y + height + 1, Localized.getLocalizedColor("overlayLeft", 0xFFA0A0A0));
-        drawRect(
-                x + width,
-                y - 1,
-                x + width + 1,
-                y + height + 1,
-                Localized.getLocalizedColor("overlayRight", 0xFFA0A0A0));
+        drawRect(x, y - 1, x + width, y, LocalizedColours.SCROLL_PANE_OVERLAY_TOP);
+        drawRect(x, y + height, x + width, y + height + 1, LocalizedColours.SCROLL_PANE_OVERLAY_BOTTOM);
+        drawRect(x - 1, y - 1, x, y + height + 1, LocalizedColours.SCROLL_PANE_OVERLAY_LEFT);
+        drawRect(x + width, y - 1, x + width + 1, y + height + 1, LocalizedColours.SCROLL_PANE_OVERLAY_RIGHT);
     }
 
     public void drawScrollbar(float frame) {
         Rectangle r = scrollbarBounds();
 
-        drawRect(r.x, r.y, r.x + r.width, r.y + r.height, Localized.getLocalizedColor("scrollbarCorners", 0xFF8B8B8B));
-        drawRect(
-                r.x,
-                r.y,
-                r.x + r.width - 1,
-                r.y + r.height - 1,
-                Localized.getLocalizedColor("scrollbarTopLeft", 0xFFF0F0F0));
-        drawRect(
-                r.x + 1,
-                r.y + 1,
-                r.x + r.width,
-                r.y + r.height,
-                Localized.getLocalizedColor("scrollbarBottomRight", 0xFF555555));
-        drawRect(
-                r.x + 1,
-                r.y + 1,
-                r.x + r.width - 1,
-                r.y + r.height - 1,
-                Localized.getLocalizedColor("scrollbarFill", 0xFFC6C6C6));
+        drawRect(r.x, r.y, r.x + r.width, r.y + r.height, LocalizedColours.SCROLLBAR_CORNERS);
+        drawRect(r.x, r.y, r.x + r.width - 1, r.y + r.height - 1, LocalizedColours.SCROLLBAR_TOP_LEFT);
+        drawRect(r.x + 1, r.y + 1, r.x + r.width, r.y + r.height, LocalizedColours.SCROLLBAR_BOTTOM_RIGHT);
+        drawRect(r.x + 1, r.y + 1, r.x + r.width - 1, r.y + r.height - 1, LocalizedColours.SCROLLBAR_FILL);
 
         int algn = scrollbarGuideAlignment();
-        if (algn != 0) drawRect(
-                algn > 0 ? r.x + r.width : r.x - 1,
-                y,
-                r.x,
-                y + height,
-                Localized.getLocalizedColor("scrollbarGuide", 0xFF808080));
+        if (algn != 0)
+            drawRect(algn > 0 ? r.x + r.width : r.x - 1, y, r.x, y + height, LocalizedColours.SCROLLBAR_GUIDE);
     }
 }

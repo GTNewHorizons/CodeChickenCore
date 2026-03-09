@@ -36,7 +36,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import codechicken.core.launch.CodeChickenCorePlugin;
-import codechicken.lib.colour.Colour.Localized;
+import codechicken.lib.colour.Colour.LocalizedColours;
 import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.vec.Rectangle4i;
 import cpw.mods.fml.client.GuiModList;
@@ -149,20 +149,11 @@ public class GuiModListScroll {
         double dy = scroll % (height + 20);
         GL11.glPushMatrix();
         GL11.glTranslated(0, -dy, 0);
-        GuiDraw.fontRenderer.drawSplitString(
-                description,
-                x1,
-                y1draw,
-                x2 - x1,
-                Localized.getLocalizedColor("modDescriptionText", 0xDDDDDD));
+        GuiDraw.fontRenderer.drawSplitString(description, x1, y1draw, x2 - x1, LocalizedColours.MOD_DESCRIPTION_TEXT);
         if (needsScroll) {
             GL11.glTranslated(0, height + 20, 0);
-            GuiDraw.fontRenderer.drawSplitString(
-                    description,
-                    x1,
-                    y1draw,
-                    x2 - x1,
-                    Localized.getLocalizedColor("modDescriptionText", 0xDDDDDD));
+            GuiDraw.fontRenderer
+                    .drawSplitString(description, x1, y1draw, x2 - x1, LocalizedColours.MOD_DESCRIPTION_TEXT);
         }
         GL11.glPopMatrix();
 

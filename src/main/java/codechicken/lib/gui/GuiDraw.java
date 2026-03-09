@@ -18,7 +18,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import codechicken.lib.colour.Colour.Localized;
+import codechicken.lib.colour.Colour.LocalizedColours;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
 
@@ -168,10 +168,10 @@ public class GuiDraw {
                 x,
                 y,
                 list,
-                Localized.getLocalizedColor("tooltipBgStart", 0xF0100010),
-                Localized.getLocalizedColor("tooltipBgEnd", 0xF0100010),
-                Localized.getLocalizedColor("tooltipBorderStart", 0x505000FF),
-                Localized.getLocalizedColor("tooltipBorderEnd", 0x5028007F));
+                LocalizedColours.TOOLTIP_BG_START,
+                LocalizedColours.TOOLTIP_BG_END,
+                LocalizedColours.TOOLTIP_BORDER_START,
+                LocalizedColours.TOOLTIP_BORDER_END);
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd,
@@ -210,7 +210,7 @@ public class GuiDraw {
                 line.draw(x, y);
                 y += line.getSize().height;
             } else {
-                font.drawStringWithShadow(s, x, y, Localized.getLocalizedColor("tooltipText", 0xFFFFFFFF));
+                font.drawStringWithShadow(s, x, y, LocalizedColours.TOOLTIP_TEXT);
                 y += s.endsWith(TOOLTIP_LINESPACE) ? 12 : 10;
             }
         }
@@ -229,10 +229,10 @@ public class GuiDraw {
                 y,
                 w,
                 h,
-                Localized.getLocalizedColor("tooltipBgStart", 0xF0100010),
-                Localized.getLocalizedColor("tooltipBgEnd", 0xF0100010),
-                Localized.getLocalizedColor("tooltipBorderStart", 0x505000FF),
-                Localized.getLocalizedColor("tooltipBorderEnd", 0x5028007F));
+                LocalizedColours.TOOLTIP_BG_START,
+                LocalizedColours.TOOLTIP_BG_END,
+                LocalizedColours.TOOLTIP_BORDER_START,
+                LocalizedColours.TOOLTIP_BORDER_END);
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart,
