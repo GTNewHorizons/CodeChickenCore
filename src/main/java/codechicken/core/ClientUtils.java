@@ -2,12 +2,16 @@ package codechicken.core;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 
 import codechicken.core.internal.CCCEventHandler;
+import codechicken.lib.colour.Colour.LocalizedColours;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.Side;
@@ -64,5 +68,18 @@ public class ClientUtils extends CommonUtils {
         mc.getMetadata().description = mc.getMetadata().description
                 .replace("Supporters:", EnumChatFormatting.AQUA + "Supporters:");
         GuiModListScroll.register(mod);
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void registerLocalizedColourReloadListener() {
+        ((IReloadableResourceManager) mc().getResourceManager())
+                .registerReloadListener(new IResourceManagerReloadListener() {
+
+                    @Override
+                    public void onResourceManagerReload(IResourceManager resourceManager) {
+                        LocalizedColours.reloadLocalizedColours();
+                    }
+                });
+        LocalizedColours.reloadLocalizedColours();
     }
 }

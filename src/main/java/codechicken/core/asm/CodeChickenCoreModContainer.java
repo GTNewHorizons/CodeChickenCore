@@ -3,10 +3,6 @@ package codechicken.core.asm;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IReloadableResourceManager;
-import net.minecraft.client.resources.IResourceManager;
-import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.google.common.eventbus.EventBus;
@@ -16,7 +12,6 @@ import codechicken.core.ClientUtils;
 import codechicken.core.featurehack.LiquidTextures;
 import codechicken.core.internal.CCCEventHandler;
 import codechicken.core.launch.CodeChickenCorePlugin;
-import codechicken.lib.colour.Colour.LocalizedColours;
 import cpw.mods.fml.common.DummyModContainer;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.LoadController;
@@ -70,15 +65,7 @@ public class CodeChickenCoreModContainer extends DummyModContainer {
     public void init(FMLInitializationEvent event) {
         if (event.getSide().isClient()) {
             ClientUtils.enhanceSupportersList("CodeChickenCore");
-            ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
-                    .registerReloadListener(new IResourceManagerReloadListener() {
-
-                        @Override
-                        public void onResourceManagerReload(IResourceManager resourceManager) {
-                            LocalizedColours.reloadLocalizedColours();
-                        }
-                    });
-            LocalizedColours.reloadLocalizedColours();
+            ClientUtils.registerLocalizedColourReloadListener();
 
             FMLCommonHandler.instance().bus().register(new CCCEventHandler());
             MinecraftForge.EVENT_BUS.register(new CCCEventHandler());
