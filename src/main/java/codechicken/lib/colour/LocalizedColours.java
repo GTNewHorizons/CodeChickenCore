@@ -69,6 +69,7 @@ public final class LocalizedColours {
             return defaultColor;
         }
 
+        String raw = StatCollector.translateToLocal(fullKey);
         String hex = raw.trim();
         if (hex.startsWith("0x") || hex.startsWith("0X")) {
             hex = hex.substring(2);
@@ -77,7 +78,7 @@ public final class LocalizedColours {
         }
 
         try {
-            return (int) Integer.parseInt(hex, 16);
+            return (int) Long.parseLong(hex, 16);
         } catch (NumberFormatException ignored) {
             return defaultColor;
         }
