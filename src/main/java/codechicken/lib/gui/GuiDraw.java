@@ -18,6 +18,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import codechicken.lib.colour.Colour.Localized;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
 
@@ -162,7 +163,15 @@ public class GuiDraw {
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list) {
-        drawMultilineTip(font, x, y, list, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+        drawMultilineTip(
+                font,
+                x,
+                y,
+                list,
+                Localized.getLocalizedColor("tooltipBgStart", 0xF0100010),
+                Localized.getLocalizedColor("tooltipBgEnd", 0xF0100010),
+                Localized.getLocalizedColor("tooltipBorderStart", 0x505000FF),
+                Localized.getLocalizedColor("tooltipBorderEnd", 0x5028007F));
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd,
@@ -201,7 +210,7 @@ public class GuiDraw {
                 line.draw(x, y);
                 y += line.getSize().height;
             } else {
-                font.drawStringWithShadow(s, x, y, -1);
+                font.drawStringWithShadow(s, x, y, Localized.getLocalizedColor("tooltipText", 0xFFFFFFFF));
                 y += s.endsWith(TOOLTIP_LINESPACE) ? 12 : 10;
             }
         }
@@ -215,7 +224,15 @@ public class GuiDraw {
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h) {
-        drawTooltipBox(x, y, w, h, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+        drawTooltipBox(
+                x,
+                y,
+                w,
+                h,
+                Localized.getLocalizedColor("tooltipBgStart", 0xF0100010),
+                Localized.getLocalizedColor("tooltipBgEnd", 0xF0100010),
+                Localized.getLocalizedColor("tooltipBorderStart", 0x505000FF),
+                Localized.getLocalizedColor("tooltipBorderEnd", 0x5028007F));
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart,

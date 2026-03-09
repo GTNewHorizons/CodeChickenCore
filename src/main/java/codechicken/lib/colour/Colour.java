@@ -3,6 +3,8 @@ package codechicken.lib.colour;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.minecraft.util.StatCollector;
+
 import org.lwjgl.opengl.GL11;
 
 import codechicken.lib.config.ConfigTag.IConfigType;
@@ -12,6 +14,42 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 public abstract class Colour implements Copyable<Colour> {
+
+    public static final class Localized {
+
+        private static final String KEY_PREFIX = "codechickencore.color.";
+
+        private Localized() {}
+
+        /**
+         * Resolve a optional localized ARGB color from lang files. Expected value format: AARRGGBB (for example
+         * FF555555).
+         */
+        public static int getLocalizedColor(String key, int defaultColor) {
+            String fullKey = KEY_PREFIX + key;
+            if (!StatCollector.canTranslate(fullKey)) {
+                return defaultColor;
+            }
+
+            String raw = StatCollector.translateToLocal(fullKey);
+            if (raw == null) {
+                return defaultColor;
+            }
+
+            String hex = raw.trim();
+            if (hex.startsWith("0x") || hex.startsWith("0X")) {
+                hex = hex.substring(2);
+            } else if (hex.startsWith("#")) {
+                hex = hex.substring(1);
+            }
+
+            try {
+                return (int) Long.parseLong(hex, 16);
+            } catch (NumberFormatException ignored) {
+                return defaultColor;
+            }
+        }
+    }
 
     public static IConfigType<Colour> configRGB = new IConfigType<Colour>() {
 

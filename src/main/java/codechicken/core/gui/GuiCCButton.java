@@ -6,6 +6,8 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
+import codechicken.lib.colour.Colour.Localized;
+
 public class GuiCCButton extends GuiWidget {
 
     public String text;
@@ -73,7 +75,9 @@ public class GuiCCButton extends GuiWidget {
     }
 
     public int getTextColour(int mousex, int mousey) {
-        return !isEnabled ? 0xFFA0A0A0 : pointInside(mousex, mousey) ? 0xFFFFFFA0 : 0xFFE0E0E0;
+        return !isEnabled ? Localized.getLocalizedColor("buttonTextDisabled", 0xFFA0A0A0)
+                : pointInside(mousex, mousey) ? Localized.getLocalizedColor("buttonTextHover", 0xFFFFFFA0)
+                        : Localized.getLocalizedColor("buttonText", 0xFFE0E0E0);
     }
 
     public GuiCCButton setActionCommand(String string) {
