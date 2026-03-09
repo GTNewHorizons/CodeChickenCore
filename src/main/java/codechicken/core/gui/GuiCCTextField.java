@@ -5,7 +5,7 @@ import net.minecraft.util.ChatAllowedCharacters;
 
 import org.lwjgl.input.Keyboard;
 
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 
 public class GuiCCTextField extends GuiWidget {
 

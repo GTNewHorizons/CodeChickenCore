@@ -36,7 +36,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import codechicken.core.launch.CodeChickenCorePlugin;
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 import codechicken.lib.gui.GuiDraw;
 import codechicken.lib.vec.Rectangle4i;
 import cpw.mods.fml.client.GuiModList;

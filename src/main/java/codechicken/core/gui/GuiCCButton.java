@@ -6,7 +6,7 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 
 public class GuiCCButton extends GuiWidget {
 

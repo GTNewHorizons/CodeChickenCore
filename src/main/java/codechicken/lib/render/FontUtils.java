@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 
 public class FontUtils {
 

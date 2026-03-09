@@ -11,7 +11,7 @@ import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 
 import codechicken.core.internal.CCCEventHandler;
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.relauncher.Side;
@@ -80,6 +80,5 @@ public class ClientUtils extends CommonUtils {
                         LocalizedColours.reloadLocalizedColours();
                     }
                 });
-        LocalizedColours.reloadLocalizedColours();
     }
 }

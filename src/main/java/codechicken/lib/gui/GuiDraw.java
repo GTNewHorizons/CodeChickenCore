@@ -18,7 +18,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import codechicken.lib.colour.Colour.LocalizedColours;
+import codechicken.lib.colour.LocalizedColours;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
 
