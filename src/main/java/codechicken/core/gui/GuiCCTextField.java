@@ -5,6 +5,8 @@ import net.minecraft.util.ChatAllowedCharacters;
 
 import org.lwjgl.input.Keyboard;
 
+import codechicken.lib.colour.LocalizedColours;
+
 public class GuiCCTextField extends GuiWidget {
 
     private String text;
@@ -120,8 +122,8 @@ public class GuiCCTextField extends GuiWidget {
     }
 
     public void drawBackground() {
-        drawRect(x - 1, y - 1, x + width + 1, y + height + 1, 0xffa0a0a0);
-        drawRect(x, y, x + width, y + height, 0xff000000);
+        drawRect(x - 1, y - 1, x + width + 1, y + height + 1, LocalizedColours.TEXT_FIELD_BORDER);
+        drawRect(x, y, x + width, y + height, LocalizedColours.TEXT_FIELD_BACKGROUND);
     }
 
     public String getDrawText() {
@@ -135,7 +137,7 @@ public class GuiCCTextField extends GuiWidget {
     }
 
     public int getTextColour() {
-        return isEnabled ? 0xe0e0e0 : 0x707070;
+        return isEnabled ? LocalizedColours.TEXT_FIELD_TEXT : LocalizedColours.TEXT_FIELD_TEXT_DISABLED;
     }
 
     public GuiCCTextField setMaxStringLength(int i) {

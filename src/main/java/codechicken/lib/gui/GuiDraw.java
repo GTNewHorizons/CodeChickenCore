@@ -18,6 +18,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
+import codechicken.lib.colour.LocalizedColours;
 import codechicken.lib.math.MathHelper;
 import codechicken.lib.render.CCRenderState;
 
@@ -162,7 +163,15 @@ public class GuiDraw {
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list) {
-        drawMultilineTip(font, x, y, list, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+        drawMultilineTip(
+                font,
+                x,
+                y,
+                list,
+                LocalizedColours.TOOLTIP_BG_START,
+                LocalizedColours.TOOLTIP_BG_END,
+                LocalizedColours.TOOLTIP_BORDER_START,
+                LocalizedColours.TOOLTIP_BORDER_END);
     }
 
     public static void drawMultilineTip(FontRenderer font, int x, int y, List<String> list, int bgStart, int bgEnd,
@@ -201,7 +210,7 @@ public class GuiDraw {
                 line.draw(x, y);
                 y += line.getSize().height;
             } else {
-                font.drawStringWithShadow(s, x, y, -1);
+                font.drawStringWithShadow(s, x, y, LocalizedColours.TOOLTIP_TEXT);
                 y += s.endsWith(TOOLTIP_LINESPACE) ? 12 : 10;
             }
         }
@@ -215,7 +224,15 @@ public class GuiDraw {
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h) {
-        drawTooltipBox(x, y, w, h, 0xf0100010, 0xf0100010, 0x505000ff, 0x5028007F);
+        drawTooltipBox(
+                x,
+                y,
+                w,
+                h,
+                LocalizedColours.TOOLTIP_BG_START,
+                LocalizedColours.TOOLTIP_BG_END,
+                LocalizedColours.TOOLTIP_BORDER_START,
+                LocalizedColours.TOOLTIP_BORDER_END);
     }
 
     public static void drawTooltipBox(int x, int y, int w, int h, int bgStart, int bgEnd, int borderStart,
