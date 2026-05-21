@@ -125,7 +125,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                 superclass = "java.lang.Object";
                 parent = OBJECT;
             } else {
-                superclass = toKey(superName);
+                superclass = toKey(superName).intern();
             }
 
             if (interfaces == null || interfaces.length == 0) {
@@ -133,7 +133,7 @@ public class ClassHeirachyManager implements IClassTransformer {
             } else {
                 this.interfaces = new String[interfaces.length];
                 for (int i = 0; i < interfaces.length; i++) {
-                    this.interfaces[i] = toKey(interfaces[i]);
+                    this.interfaces[i] = toKey(interfaces[i]).intern();
                 }
             }
         }
@@ -148,7 +148,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                     this.superclass = "java.lang.Object";
                     this.parent = OBJECT;
                 } else {
-                    this.superclass = toKey(superclass.getName());
+                    this.superclass = toKey(superclass.getName()).intern();
                 }
             }
             final Class<?>[] interfaces = aclass.getInterfaces();
@@ -157,7 +157,7 @@ public class ClassHeirachyManager implements IClassTransformer {
             } else {
                 this.interfaces = new String[interfaces.length];
                 for (int i = 0; i < interfaces.length; i++) {
-                    this.interfaces[i] = toKey(interfaces[i].getName());
+                    this.interfaces[i] = toKey(interfaces[i].getName()).intern();
                 }
             }
         }
