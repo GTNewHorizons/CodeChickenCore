@@ -2,6 +2,7 @@ package codechicken.lib.asm;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import net.minecraft.launchwrapper.IClassTransformer;
 import net.minecraft.launchwrapper.Launch;
@@ -107,6 +108,7 @@ public class ClassHeirachyManager implements IClassTransformer {
     private static class ClassInfo {
 
         public static final ClassInfo OBJECT = new ClassInfo();
+        private static final Map<String, String> STRING_POOL = new ConcurrentHashMap<>(256);
 
         public final String superclass;
         public final String[] interfaces;
@@ -125,7 +127,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                 superclass = "java.lang.Object";
                 parent = OBJECT;
             } else {
-                superclass = toKey(superName).intern();
+                superclass = pool(toKey(superName));
             }
 
             if (interfaces == null || interfaces.length == 0) {
@@ -133,7 +135,7 @@ public class ClassHeirachyManager implements IClassTransformer {
             } else {
                 this.interfaces = new String[interfaces.length];
                 for (int i = 0; i < interfaces.length; i++) {
-                    this.interfaces[i] = toKey(interfaces[i]).intern();
+                    this.interfaces[i] = pool(toKey(interfaces[i]));
                 }
             }
         }
@@ -148,7 +150,7 @@ public class ClassHeirachyManager implements IClassTransformer {
                     this.superclass = "java.lang.Object";
                     this.parent = OBJECT;
                 } else {
-                    this.superclass = toKey(superclass.getName()).intern();
+                    this.superclass = pool(toKey(superclass.getName()));
                 }
             }
             final Class<?>[] interfaces = aclass.getInterfaces();
@@ -157,7 +159,7 @@ public class ClassHeirachyManager implements IClassTransformer {
             } else {
                 this.interfaces = new String[interfaces.length];
                 for (int i = 0; i < interfaces.length; i++) {
-                    this.interfaces[i] = toKey(interfaces[i].getName()).intern();
+                    this.interfaces[i] = pool(toKey(interfaces[i].getName()));
                 }
             }
         }
@@ -171,6 +173,10 @@ public class ClassHeirachyManager implements IClassTransformer {
             if (parentInfo == null) return false;
             this.parent = parentInfo;
             return parentInfo.hasSuper(superclass);
+        }
+
+        private static String pool(String s) {
+            return STRING_POOL.computeIfAbsent(s, Function.identity());
         }
     }
 }
