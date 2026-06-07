@@ -65,6 +65,8 @@ public class CodeChickenCoreModContainer extends DummyModContainer {
     public void init(FMLInitializationEvent event) {
         if (event.getSide().isClient()) {
             ClientUtils.enhanceSupportersList("CodeChickenCore");
+            ClientUtils.registerLocalizedColourReloadListener();
+
             FMLCommonHandler.instance().bus().register(new CCCEventHandler());
             MinecraftForge.EVENT_BUS.register(new CCCEventHandler());
         }
