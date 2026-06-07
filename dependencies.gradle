@@ -1,5 +1,4 @@
 // Add your dependencies here
 
 dependencies {
-    shadowImplementation("com.github.GTNewHorizons:GTNHLib:0.11.5")
 }
