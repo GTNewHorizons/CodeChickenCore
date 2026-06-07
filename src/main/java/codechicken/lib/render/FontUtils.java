@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
-import codechicken.lib.colour.LocalizedColours;
+import codechicken.lib.colour.ColorUtils;
 
 public class FontUtils {
 
@@ -55,7 +55,7 @@ public class FontUtils {
         GL11.glPushMatrix();
         GL11.glTranslated(x + 16 - swidth, y + 16 - sheight, 0);
         GL11.glScaled(scale, scale, 1);
-        fontRenderer.drawStringWithShadow(quantity, 0, 0, LocalizedColours.ITEM_QUANTITY_TEXT);
+        fontRenderer.drawStringWithShadow(quantity, 0, 0, ColorUtils.itemQuantityText.getColor());
         GL11.glPopMatrix();
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
