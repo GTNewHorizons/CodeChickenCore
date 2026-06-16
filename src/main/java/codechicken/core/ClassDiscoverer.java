@@ -116,6 +116,7 @@ public class ClassDiscoverer {
             while (zipEntries.hasMoreElements()) {
                 ZipEntry zipentry = zipEntries.nextElement();
                 String fullname = zipentry.getName().replace('\\', '/');
+                if (fullname.startsWith("META-INF/versions/")) continue;
                 int pos = fullname.lastIndexOf('/');
                 String name = pos == -1 ? fullname : fullname.substring(pos + 1);
                 if (!zipentry.isDirectory() && matcher.matches(name)) {
