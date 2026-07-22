@@ -12,7 +12,12 @@ import codechicken.lib.vec.BlockCoord;
 public class SimpleBrightnessModel implements CCRenderState.IVertexOperation {
 
     public static final int operationIndex = CCRenderState.registerOperation();
-    public static SimpleBrightnessModel instance = new SimpleBrightnessModel();
+    private static final ThreadLocal<SimpleBrightnessModel> instances = ThreadLocal
+            .withInitial(SimpleBrightnessModel::new);
+
+    public static SimpleBrightnessModel instance() {
+        return instances.get();
+    }
 
     public IBlockAccess access;
     public BlockCoord pos = new BlockCoord();
