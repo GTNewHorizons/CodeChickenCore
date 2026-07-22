@@ -1,6 +1,7 @@
 package codechicken.lib.render;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -38,9 +39,9 @@ public class CCRenderState {
         return instances.get();
     }
 
-    private static int nextOperationIndex;
+    private static volatile int nextOperationIndex;
 
-    public static int registerOperation() {
+    public static synchronized int registerOperation() {
         return nextOperationIndex++;
     }
 
@@ -87,15 +88,52 @@ public class CCRenderState {
         int operationID();
     }
 
-    private static ArrayList<VertexAttribute<?>> vertexAttributes = new ArrayList<>();
+    public static final class AttributeKey<T> {
 
-    private static int registerVertexAttribute(VertexAttribute<?> attr) {
-        vertexAttributes.add(attr);
-        return vertexAttributes.size() - 1;
+        private static final HashMap<String, AttributeKey<?>> nameMap = new HashMap<>();
+        private static final ArrayList<AttributeKey<?>> attributeKeys = new ArrayList<>();
+        private static int nextLegacyId;
+
+        public final String name;
+        public final int attributeKeyIndex;
+        public final int operationIndex;
+        private VertexAttribute<T> canonical;
+
+        private AttributeKey(String name) {
+            this.name = name;
+            this.attributeKeyIndex = attributeKeys.size();
+            this.operationIndex = registerOperation();
+            attributeKeys.add(this);
+            nameMap.put(name, this);
+        }
+
+        public static synchronized <T> AttributeKey<T> create(String name) {
+            if (nameMap.containsKey(name))
+                throw new IllegalArgumentException("Duplicate registration of attribute with name: " + name);
+            return new AttributeKey<>(name);
+        }
+
+        static synchronized <T> AttributeKey<T> createLegacy() {
+            return new AttributeKey<>("legacy#" + nextLegacyId++);
+        }
+
+        synchronized void setCanonical(VertexAttribute<T> attr) {
+            if (canonical == null) canonical = attr;
+        }
+
+        static synchronized AttributeKey<?> get(int index) {
+            return attributeKeys.get(index);
+        }
     }
 
+    private static final AttributeKey<Vector3[]> NORMAL_KEY = AttributeKey.create("normal");
+    private static final AttributeKey<int[]> COLOUR_KEY = AttributeKey.create("colour");
+    private static final AttributeKey<int[]> LIGHTING_KEY = AttributeKey.create("lighting");
+    private static final AttributeKey<int[]> SIDE_KEY = AttributeKey.create("side");
+    private static final AttributeKey<LC[]> LC_KEY = AttributeKey.create("lc");
+
     public static VertexAttribute<?> getAttribute(int index) {
-        return vertexAttributes.get(index);
+        return AttributeKey.get(index).canonical;
     }
 
     /**
@@ -106,13 +144,25 @@ public class CCRenderState {
      */
     public abstract static class VertexAttribute<T> implements IVertexOperation {
 
-        public final int attributeIndex = registerVertexAttribute(this);
-        private final int operationIndex = registerOperation();
+        public final int attributeIndex;
+        private final int operationIndex;
         /**
          * Set to true when the attrute is part of the pipeline. Should only be managed by CCRenderState when
          * constructing the pipeline
          */
         public boolean active = false;
+
+        protected VertexAttribute(AttributeKey<T> key) {
+            attributeIndex = key.attributeKeyIndex;
+            operationIndex = key.operationIndex;
+            key.setCanonical(this);
+        }
+
+        /** @deprecated keyless attributes get a per-construction index that is threadsafe */
+        @Deprecated
+        protected VertexAttribute() {
+            this(AttributeKey.createLegacy());
+        }
 
         /**
          * Construct a new array for storage of vertex attrutes in a model
@@ -189,7 +239,7 @@ public class CCRenderState {
         return instances.get().lightingAttrib;
     }
 
-    public VertexAttribute<Vector3[]> normalAttrib = new VertexAttribute<>() {
+    public VertexAttribute<Vector3[]> normalAttrib = new VertexAttribute<>(NORMAL_KEY) {
 
         private Vector3[] normalRef;
 
@@ -217,7 +267,7 @@ public class CCRenderState {
             else state.setNormalInstance(Rotation.axes[state.side]);
         }
     };
-    public VertexAttribute<int[]> colourAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> colourAttrib = new VertexAttribute<>(COLOUR_KEY) {
 
         private int[] colourRef;
 
@@ -239,7 +289,7 @@ public class CCRenderState {
             else state.setColourInstance(state.baseColour);
         }
     };
-    public VertexAttribute<int[]> lightingAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> lightingAttrib = new VertexAttribute<>(LIGHTING_KEY) {
 
         private int[] colourRef;
 
@@ -265,7 +315,7 @@ public class CCRenderState {
             state.setColourInstance(ColourRGBA.multiply(state.colour, colourRef[state.vertexIndex]));
         }
     };
-    public VertexAttribute<int[]> sideAttrib = new VertexAttribute<>() {
+    public VertexAttribute<int[]> sideAttrib = new VertexAttribute<>(SIDE_KEY) {
 
         private int[] sideRef;
 
@@ -292,7 +342,7 @@ public class CCRenderState {
     /**
      * Uses the position of the lightmatrix to compute LC if not provided
      */
-    public VertexAttribute<LC[]> lightCoordAttrib = new VertexAttribute<>() {
+    public VertexAttribute<LC[]> lightCoordAttrib = new VertexAttribute<>(LC_KEY) {
 
         private LC[] lcRef;
         private final Vector3 vec = new Vector3(); // for computation
