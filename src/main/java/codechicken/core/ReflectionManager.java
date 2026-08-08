@@ -104,7 +104,7 @@ public class ReflectionManager {
      *                                  doesn't match the type of the field.
      * @throws IllegalAccessException   If unable to write to the field.
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public static void setField(Class<?> class1, Object instance, int fieldindex, Object value)
             throws IllegalArgumentException, IllegalAccessException {
         Field field = class1.getDeclaredFields()[fieldindex];
@@ -210,7 +210,7 @@ public class ReflectionManager {
      * @throws IllegalAccessException   If unable to read from the field.
      * @throws ClassCastException       If the object stored in the field is not a subclass of {@code fieldType}
      */
-    @Deprecated(forRemoval = true)
+    @Deprecated
     public static <T> T getField(Class<?> class1, Class<T> fieldType, Object instance, int fieldIndex)
             throws IllegalArgumentException, IllegalAccessException {
         Field field = class1.getDeclaredFields()[fieldIndex];
