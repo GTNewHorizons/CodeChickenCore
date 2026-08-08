@@ -208,7 +208,6 @@ public class ReflectionManager {
      * @param fieldIndex The index of the field being read.
      * @throws IllegalArgumentException If {@code instance} is not an instance of {@code class1}.
      * @throws IllegalAccessException   If unable to read from the field.
-     * @throws ClassCastException       If the object stored in the field is not a subclass of {@code fieldType}
      */
     @Deprecated
     public static <T> T getField(Class<?> class1, Class<T> fieldType, Object instance, int fieldIndex)
