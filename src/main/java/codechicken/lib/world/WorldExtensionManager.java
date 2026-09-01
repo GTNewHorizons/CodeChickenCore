@@ -55,7 +55,10 @@ public class WorldExtensionManager {
         public void onChunkUnLoad(ChunkEvent.Unload event) {
             if (event.getChunk() instanceof EmptyChunk) return;
 
-            for (WorldExtension extension : worldMap.get(event.world)) extension.unloadChunk(event.getChunk());
+            WorldExtension[] extensions = worldMap.get(event.world);
+            if (extensions == null) return;
+
+            for (WorldExtension extension : extensions) extension.unloadChunk(event.getChunk());
 
             if (event.world.isRemote) removeChunk(event.world, event.getChunk());
         }
