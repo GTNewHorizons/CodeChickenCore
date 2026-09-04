@@ -466,7 +466,7 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
 
     public FluidStack readFluidStack() {
         Fluid fluid = FluidRegistry.getFluid(readShort());
-        if (fluid == null) fluid = FluidRegistry.WATER;
+        if (fluid == null) return null;
 
         return new FluidStack(fluid, readVarInt(), readNBTTagCompound());
     }
