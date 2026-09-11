@@ -164,6 +164,9 @@ public class EntityDigIconFX extends EntityFX {
      */
     public static void addBlockDestroyEffects(World world, Cuboid6 bounds, IIcon[] icons, int[] colours,
             EffectRenderer effectRenderer) {
+        if (icons.length != colours.length)
+            throw new IllegalArgumentException("icons and colours must have the same length");
+
         Vector3 diff = bounds.max.copy().subtract(bounds.min);
         Vector3 center = bounds.min.copy().add(bounds.max).multiply(0.5);
         Vector3 density = diff.copy().multiply(4);
