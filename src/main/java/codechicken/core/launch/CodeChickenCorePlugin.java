@@ -25,8 +25,6 @@ import codechicken.core.asm.TweakTransformer;
 import codechicken.lib.config.ConfigFile;
 import codechicken.lib.config.ConfigTag;
 import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.versioning.DefaultArtifactVersion;
-import cpw.mods.fml.common.versioning.VersionParser;
 import cpw.mods.fml.relauncher.CoreModManager;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
@@ -118,7 +116,7 @@ public class CodeChickenCorePlugin implements IFMLLoadingPlugin {
 
     public static void versionCheck(String reqVersion, String mod) {
         String mcVersion = (String) FMLInjectionData.data()[4];
-        if (!VersionParser.parseRange(reqVersion).containsVersion(new DefaultArtifactVersion(mcVersion))) {
+        if (!reqVersion.contains(mcVersion)) {
             String err = "This version of " + mod + " does not support minecraft version " + mcVersion;
             logger.error(err);
 
