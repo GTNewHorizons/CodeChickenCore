@@ -243,6 +243,8 @@ public final class PacketCustom implements MCDataInput, MCDataOutput {
     }
 
     private void compressPayload() {
+        if ((byteBuf.getUnsignedByte(0) & 0x80) != 0) return;
+
         int payloadLength = byteBuf.writerIndex() - 1;
         if (payloadLength > MAX_DECOMPRESSED_SIZE)
             throw new IllegalArgumentException("Packet payload exceeds 2 MiB decompressed limit: " + payloadLength);

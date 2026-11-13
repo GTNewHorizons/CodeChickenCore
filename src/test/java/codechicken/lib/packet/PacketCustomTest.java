@@ -135,6 +135,28 @@ public class PacketCustomTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = { false, true })
+    public void repeatedSerializationPreservesCompressedPayload(boolean forceCompression) {
+        byte[] data = new byte[40000];
+        Arrays.fill(data, (byte) 42);
+        PacketCustom outgoing = new PacketCustom("PacketTest", 7).writeByteArray(data);
+        if (forceCompression) outgoing.compress();
+        try {
+            for (int serialization = 0; serialization < 3; serialization++) {
+                FMLProxyPacket wire = outgoing.toPacket();
+                try {
+                    assertEquals(0x87, wire.payload().getUnsignedByte(0));
+                    assertDecoded(wire.payload().retain(), data);
+                } finally {
+                    wire.payload().release();
+                }
+            }
+        } finally {
+            outgoing.getByteBuf().release();
+        }
+    }
+
     @Test
     public void rejectsOutgoingPayloadAboveDecodeLimit() {
         PacketCustom outgoing = new PacketCustom("PacketTest", 7);
